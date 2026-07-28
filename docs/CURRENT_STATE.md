@@ -79,6 +79,7 @@ Implementar logs operacionais estruturados e auditoria mínima sem registrar dad
 - Página `/logs` implementada para consultar, em seções separadas, eventos persistidos e logs operacionais; possui filtros por período, nível, tipo, serviço, ação e correlação, além de detalhes técnicos sanitizados.
 - Rota `/logs` entregue pelo Express em produção e proxy de desenvolvimento configurado para `/api`.
 - Validação local da página aprovada: typecheck dos três workspaces, 35 testes e build de produção, cobrindo sucesso, filtros, vazio, indisponibilidade, erro de API e entrega da rota estática.
+- Ajuda contextual acessível adicionada aos filtros técnicos de tipo persistido, serviço, ação e correlação, com as opções atuais de consulta.
 
 ## Em andamento
 
@@ -87,6 +88,10 @@ Implementar logs operacionais estruturados e auditoria mínima sem registrar dad
 ## Próximo passo recomendado
 
 Validar a página `/logs` no S20 FE. Depois dessa evidência, encerrar a Etapa 2 e iniciar o planejamento da Etapa 3 — monitoramento do aparelho e dashboard.
+
+## Melhoria futura registrada
+
+- Quando houver um catálogo confiável de serviços observados, evoluir o filtro de serviço da página `/logs` de texto livre para dropdown dinâmico. Essa melhoria não bloqueia a conclusão da Etapa 2.
 
 ## Primeira entrega de código implementada
 

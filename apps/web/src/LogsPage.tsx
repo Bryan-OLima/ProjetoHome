@@ -134,7 +134,10 @@ function LogFiltersForm(props: {
         </select>
       </label>
       <label>
-        Evento persistido
+        <FilterLabel>
+          Evento persistido
+          <FilterHelp text="Audit registra ações sensíveis. Error registra falhas relevantes mantidas no SQLite." />
+        </FilterLabel>
         <select
           value={props.filters.kind}
           onChange={(event) => update("kind", event.target.value)}
@@ -145,15 +148,24 @@ function LogFiltersForm(props: {
         </select>
       </label>
       <label>
-        Serviço
+        <FilterLabel>
+          Serviço
+          <FilterHelp text="Origem do evento. Opções atuais: http, server, observability e logging." />
+        </FilterLabel>
         <input value={props.filters.service} onChange={(event) => update("service", event.target.value)} />
       </label>
       <label>
-        Ação
+        <FilterLabel>
+          Ação
+          <FilterHelp text="Nome exato da operação. Opções atuais: http.request, http.request.error, server.started, server.stop, observability.retention, logging.write e observability.persist." />
+        </FilterLabel>
         <input value={props.filters.action} onChange={(event) => update("action", event.target.value)} />
       </label>
       <label>
-        Correlação
+        <FilterLabel>
+          Correlação
+          <FilterHelp text="UUID que conecta etapas do mesmo fluxo. Requisições HTTP comuns usam Request ID; correlação aparece em fluxos encadeados." />
+        </FilterLabel>
         <input
           value={props.filters.correlationId}
           onChange={(event) => update("correlationId", event.target.value)}
@@ -161,6 +173,21 @@ function LogFiltersForm(props: {
       </label>
       <button type="submit">Aplicar filtros</button>
     </form>
+  );
+}
+
+function FilterLabel({ children }: { children: React.ReactNode }) {
+  return <span className="filter-label">{children}</span>;
+}
+
+function FilterHelp({ text }: { text: string }) {
+  return (
+    <span className="filter-help" tabIndex={0} aria-label={`Ajuda: ${text}`}>
+      <span aria-hidden="true">?</span>
+      <span className="filter-help__tooltip" role="tooltip">
+        {text}
+      </span>
+    </span>
   );
 }
 

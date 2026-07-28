@@ -50,6 +50,7 @@ As versões validadas na prova do banco foram `drizzle-orm@1.0.0-rc.4` e `drizzl
 - `GET /api/observability/events` consulta eventos persistidos com filtros tipados, paginação por cursor e resposta sanitizada.
 - `GET /api/observability/operational-logs` consulta os arquivos JSONL rotativos mais recentes com filtros tipados e leitura limitada, sem carregar os arquivos inteiros em memória.
 - A página `/logs` reúne as duas fontes, permite filtros por período, nível, tipo, serviço, ação e correlação, e apresenta detalhes técnicos já sanitizados.
+- Os filtros técnicos da página possuem ajuda contextual com as opções disponíveis nesta fase. O campo de serviço permanece livre até existir um catálogo de valores observados.
 - Senhas, tokens, segredos, cookies, sessões e conteúdo privado são removidos antes do registro.
 - As migrations são aplicadas automaticamente ao iniciar o backend. Um erro na migration impede a inicialização com schema parcial.
 

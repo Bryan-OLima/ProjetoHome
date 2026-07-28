@@ -61,6 +61,9 @@ describe("LogsPage", () => {
     expect(screen.getByText("Eventos persistidos")).toBeInTheDocument();
     expect(screen.getByText("Logs operacionais")).toBeInTheDocument();
     expect(screen.getByText("Detalhes técnicos")).toBeInTheDocument();
+    expect(screen.getAllByText("?")).toHaveLength(4);
+    expect(screen.getAllByRole("tooltip")).toHaveLength(4);
+    expect(screen.getByText(/Opções atuais: http, server/)).toBeInTheDocument();
   });
 
   it("applies the level filter and shows empty states", async () => {

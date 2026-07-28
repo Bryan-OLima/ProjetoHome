@@ -47,6 +47,8 @@ O frontend nunca é uma fronteira de autorização. Toda permissão é revalidad
 
 A página de logs envia filtros validados aos dois contratos públicos, mostra as fontes em seções distintas e expõe apenas os detalhes que já chegaram sanitizados pelo backend. Estados de carregamento, vazio, indisponibilidade e falha de API permanecem explícitos para não confundir ausência de eventos com falta de conectividade.
 
+Enquanto a quantidade de serviços é pequena, o filtro de serviço permanece como texto e a interface apresenta as opções atuais em ajuda contextual. Um dropdown só deve ser introduzido quando houver um catálogo confiável de serviços observados, evitando valores rígidos que fiquem desatualizados.
+
 ### Backend Node.js e TypeScript
 
 - API e contratos do sistema.
