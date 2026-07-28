@@ -1,0 +1,32 @@
+{
+  "name": "projeto-home-sqlite-driver-poc",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Prova de conceito isolada de Drizzle ORM com node:sqlite no Termux.",
+  "scripts": {
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "tsx src/migrate.ts",
+    "test": "npm run db:generate && vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "drizzle-orm": "1.0.0-rc.4",
+    "express": "5.1.0"
+  },
+  "devDependencies": {
+    "@types/express": "5.0.3",
+    "@types/node": "24.10.1",
+    "@types/supertest": "6.0.3",
+    "drizzle-kit": "1.0.0-rc.4",
+    "supertest": "7.2.2",
+    "tsx": "4.20.6",
+    "typescript": "5.9.3",
+    "vitest": "4.1.10"
+  },
+  "engines": {
+    "node": ">=24.0.0",
+    "npm": ">=11"
+  }
+}

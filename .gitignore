@@ -1,0 +1,70 @@
+# Dependências reinstaláveis
+node_modules/
+
+# Variáveis de ambiente e segredos
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+
+# Bancos e dados locais de execução
+data/
+*.db
+*.db-journal
+*.sqlite
+*.sqlite-journal
+*.sqlite-shm
+*.sqlite-wal
+
+# Modelos e caches de IA
+models/
+*.gguf
+*.safetensors
+.cache/huggingface/
+
+# Logs, resultados e cobertura
+logs/
+*.log
+npm-debug.log*
+results/
+coverage/
+.nyc_output/
+
+# Builds e caches de ferramentas
+dist/
+build/
+.vite/
+.vitest/
+.cache/
+.turbo/
+*.tsbuildinfo
+
+# Ferramentas portáteis e downloads locais
+/.tools/
+
+# Arquivos temporários
+tmp/
+temp/
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# IDEs e sistema operacional
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Relatórios de falha
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+core
+core.*
