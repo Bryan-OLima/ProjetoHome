@@ -2,7 +2,7 @@
 
 **Atualizado em:** 2026-07-28  
 **Fase atual:** Etapa 2 — Logging service e auditoria mínima
-**Estado geral:** Etapa 1 concluída e validada no S20 FE; três incrementos da Etapa 2 validados no S20 FE e a consulta adicional de logs operacionais implementada localmente
+**Estado geral:** Etapa 1 concluída e validada no S20 FE; quatro incrementos da Etapa 2 implementados e validados no S20 FE
 
 ## Objetivo da fase atual
 
@@ -75,6 +75,7 @@ Implementar logs operacionais estruturados e auditoria mínima sem registrar dad
 - `GET /api/observability/operational-logs` implementado com filtros de período, nível, serviço, ação e correlação; retorna eventos do mais recente ao mais antigo e informa quando o resultado foi truncado.
 - Adaptador JSONL separado implementado com leitura reversa em blocos, limite configurável de bytes, arquivos rotativos conhecidos e nova sanitização/validação antes da resposta.
 - Validação local aprovada: typecheck dos três workspaces e 31 testes, cobrindo rota, filtros, ordem dos arquivos rotativos, teto de leitura e nova sanitização dos registros lidos.
+- Validação em produção no S20 FE aprovada em 2026-07-28: `npm ci`, typecheck, 31 testes, build de produção, migrations, `PRAGMA integrity_check = ok`, correlação pelo `requestId` no JSONL e resposta válida da consulta de logs operacionais. Evidências locais: `var/validation/stage-2-20260728T201648Z/`.
 
 ## Em andamento
 
@@ -82,7 +83,7 @@ Implementar logs operacionais estruturados e auditoria mínima sem registrar dad
 
 ## Próximo passo recomendado
 
-Validar no S20 FE a consulta de logs operacionais adicionada. Após essa evidência, criar a página `/logs` no frontend para consumir eventos persistidos e logs operacionais, com filtros, carregamento, vazio, erro e indisponibilidade.
+Criar a página `/logs` no frontend para consumir eventos persistidos e logs operacionais, com filtros, carregamento, vazio, erro e indisponibilidade.
 
 ## Primeira entrega de código implementada
 
