@@ -150,10 +150,14 @@ Quando for necessário correlacionar um recurso, usar identificador, hash seguro
 
 Ao finalizar trabalho material, atualizar `CURRENT_STATE.md`. Alterações arquiteturais também devem atualizar `ARCHITECTURE.md` e, se necessário, o roadmap.
 
+## Decisões fixadas
+
+- Logs operacionais de alto volume ficam em arquivos JSONL rotativos no armazenamento interno. Auditoria, erros relevantes e histórico consultável ficam no SQLite.
+- A dashboard usará uma conta administradora local, senha protegida por Argon2id e sessões revogáveis por cookie seguro. HTTPS é obrigatório antes de dados sensíveis ou acesso remoto.
+- O processo persistente no Android usa Termux:Boot e um supervisor leve em shell. O Vite é restrito ao desenvolvimento; em produção, o Express serve o frontend compilado.
+
 ## Escolhas ainda abertas
 
 Enquanto não forem decididas, não tratá-las como regra:
 
-- formato e armazenamento definitivo dos logs;
-- autenticação final da dashboard;
 - solução de acesso remoto.

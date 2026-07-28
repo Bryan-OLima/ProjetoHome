@@ -5,7 +5,7 @@ import {
 import request from "supertest";
 import { afterEach, describe, expect, it } from "vitest";
 import { createApp } from "../src/app.js";
-import { createTestDatabase } from "./helpers.js";
+import { createTestDatabase, createTestWebDist } from "./helpers.js";
 
 const cleanups: Array<() => void> = [];
 afterEach(() => cleanups.splice(0).forEach((cleanup) => cleanup()));
@@ -41,5 +41,20 @@ describe("GET /health", () => {
 
     const response = await request(app).get("/missing").expect(404);
     expect(ErrorResponseSchema.parse(response.body).error.code).toBe("not_found");
+  });
+
+  it("serves the compiled frontend when it is available", async () => {
+    const testDatabase = createTestDatabase("static-web");
+    const testWebDist = createTestWebDist();
+    cleanups.push(testDatabase.cleanup, testWebDist.cleanup);
+    const app = createApp({
+      database: testDatabase.database,
+      version: "test",
+      webDistPath: testWebDist.directory,
+    });
+
+    const response = await request(app).get("/").expect(200);
+    expect(response.headers["content-type"]).toMatch(/text\/html/);
+    expect(response.text).toContain("Projeto Home estático");
   });
 });

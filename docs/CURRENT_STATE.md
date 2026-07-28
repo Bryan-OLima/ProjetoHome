@@ -2,7 +2,7 @@
 
 **Atualizado em:** 2026-07-28  
 **Fase atual:** Etapa 1 — Preparar ambiente e esqueleto  
-**Estado geral:** primeira entrega vertical implementada e validada localmente; validação no S20 FE pendente
+**Estado geral:** primeira entrega vertical e operação local implementadas e validadas; validação no S20 FE pendente
 
 ## Objetivo da fase atual
 
@@ -41,13 +41,18 @@ Validar no ambiente-alvo a primeira entrega vertical já implementada, sem ampli
 - Contratos Zod de health e erro implementados e compartilhados entre servidor e frontend.
 - Backend Express implementado com configuração validada, `requestId`, envelope seguro de erro, `GET /health` e SQLite/Drizzle com os pragmas aprovados.
 - Frontend React/Vite implementado com cartão de estado para carregamento, servidor online e indisponibilidade.
-- Validação local aprovada: typecheck dos três workspaces, sete testes, build de produção e smoke test HTTP do servidor compilado.
+- Validação local aprovada: typecheck dos três workspaces, oito testes, build de produção e smoke test HTTP do servidor compilado.
 - Árvore npm auditada sem vulnerabilidades conhecidas e sem conflitos de dependência.
+- Build React servido pelo Express na mesma porta da API; Vite fica restrito ao desenvolvimento.
+- Scripts de supervisor, parada segura e Termux:Boot criados para a operação no aparelho.
+- Estratégia de logs aprovada: JSONL rotativo para operação e SQLite para auditoria, erros relevantes e histórico consultável.
+- Estratégia de autenticação aprovada: conta administradora local, Argon2id, sessões revogáveis e HTTPS antes de dados sensíveis.
 
 ## Em andamento
 
-- Repetição de `npm ci`, typecheck, sete testes e build no S20 FE.
-- Validação do acesso pela rede local e dos estados online e offline da dashboard.
+- Repetição de `npm ci`, typecheck, oito testes e build no S20 FE.
+- Validação do acesso pela rede local, dos estados online e offline da dashboard e do frontend servido pelo Express.
+- Validação do Termux:Boot, supervisor, wake-lock e recuperação após queda.
 
 ## Próximo passo recomendado
 
@@ -60,15 +65,15 @@ Transferir ou atualizar o repositório no S20 FE, executar a validação complet
 - npm workspaces, Drizzle e SQLite em WAL configurados.
 - `GET /health` criado com status, versão, uptime, banco, timestamp e `requestId`.
 - Cartão de status criado com estados de carregamento, online e offline.
-- Acesso pela rede local e comportamento offline ainda dependem do ensaio no aparelho.
+- Acesso pela rede local, comportamento offline e recuperação automática ainda dependem do ensaio no aparelho.
 
-## Decisões pendentes antes ou durante a Etapa 1
+## Decisões registradas para a Etapa 1
 
 | Decisão | Estado | Observação |
 |---|---|---|
-| Armazenamento dos logs | Pendente | Separar arquivos operacionais de auditoria consultável. |
-| Autenticação da dashboard | Pendente | Necessária antes de dados sensíveis. |
-| Processo em segundo plano | Pendente | Investigar comportamento do Android/Termux. |
+| Armazenamento dos logs | Definido | JSONL rotativo para operação; SQLite para auditoria e histórico consultável. |
+| Autenticação da dashboard | Definida | Conta local, Argon2id, sessões revogáveis e HTTPS antes de dados sensíveis. |
+| Processo em segundo plano | Definido | Termux:Boot e supervisor em shell, com Vite restrito ao desenvolvimento. |
 
 ## Bloqueios atuais
 

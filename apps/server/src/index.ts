@@ -14,7 +14,12 @@ const packageJson = JSON.parse(
   readFileSync(new URL("../package.json", import.meta.url), "utf8"),
 ) as { version: string };
 const database = openDatabase(config.databasePath);
-const app = createApp({ database, version: packageJson.version });
+const webDistPath = fileURLToPath(new URL("../../web/dist/", import.meta.url));
+const app = createApp({
+  database,
+  version: packageJson.version,
+  webDistPath,
+});
 
 const server = app.listen(config.port, config.host, () => {
   console.info(

@@ -69,7 +69,8 @@ Este documento define a ordem operacional de construção. Cada etapa deve resul
 
 - Documentar instalação e execução no Termux.
 - Confirmar acesso pela rede local a partir de outro dispositivo.
-- Definir processo de inicialização e reinício.
+- Executar o build do frontend pelo Express, sem Vite residente em produção.
+- Usar Termux:Boot e supervisor leve em shell para inicialização e reinício.
 
 ### Testes
 

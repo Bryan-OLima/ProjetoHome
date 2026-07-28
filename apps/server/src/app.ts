@@ -6,12 +6,14 @@ import express, {
   type ErrorRequestHandler,
   type RequestHandler,
 } from "express";
+import { existsSync } from "node:fs";
 import type { DatabaseHandle } from "./db/database.js";
 import { getRequestId, requestContext } from "./request-context.js";
 
 export interface AppOptions {
   database: DatabaseHandle;
   version: string;
+  webDistPath?: string;
   now?: () => Date;
   uptime?: () => number;
 }
@@ -41,6 +43,10 @@ export function createApp(options: AppOptions) {
 
     response.status(200).json(payload);
   });
+
+  if (options.webDistPath && existsSync(options.webDistPath)) {
+    app.use(express.static(options.webDistPath));
+  }
 
   const notFound: RequestHandler = (_request, response) => {
     const payload = ErrorResponseSchema.parse({

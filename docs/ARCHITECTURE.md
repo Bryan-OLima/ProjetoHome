@@ -35,6 +35,8 @@ flowchart LR
 
 ### Frontend React
 
+Em produção, o Vite gera `apps/web/dist` e não permanece em execução. O Express entrega esses arquivos estáticos junto da API, reduzindo a operação no S20 FE a uma porta e um processo Node.js.
+
 - Dashboard e status do servidor.
 - Central de logs e observabilidade.
 - Interface de consulta ao assistente.
@@ -54,6 +56,10 @@ O frontend nunca é uma fronteira de autorização. Toda permissão é revalidad
 - Acesso controlado ao banco e armazenamento.
 - Gerenciamento das conexões WebSocket.
 - Recepção de webhooks e enfileiramento de operações demoradas.
+
+### Operação no Android
+
+O Termux:Boot inicia um supervisor em shell após a reinicialização. Ele mantém um `wake-lock`, inicia o processo Node.js, registra PIDs em `var/run/` e aplica espera progressiva antes de reiniciar o processo em caso de queda. Arquivos de log e estado dessa operação permanecem em `var/`, fora do repositório e do banco.
 
 ### SQLite
 
@@ -232,6 +238,12 @@ Todos os eventos compartilham correlação, mas não armazenam o corpo integral 
 - A ausência do PC Agent afeta apenas recursos do PC.
 - A ausência do Gmail afeta apenas consultas de e-mail.
 - Health check distingue saúde do núcleo e estado das dependências.
+
+## Decisões arquiteturais aprovadas
+
+- Logs operacionais serão arquivos JSONL rotativos no armazenamento interno; auditoria, erros relevantes e histórico consultável ficarão no SQLite.
+- A dashboard terá uma conta administradora local, senha protegida por Argon2id e sessões revogáveis por cookie seguro. HTTPS será obrigatório antes de dados sensíveis ou acesso remoto.
+- A execução persistente no Android usa Termux:Boot e supervisor leve em shell; o Vite fica restrito ao desenvolvimento.
 
 ## Decisões arquiteturais pendentes
 

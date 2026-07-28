@@ -13,6 +13,7 @@
     "build": "npm run build --workspaces --if-present",
     "dev:server": "npm run build -w @projeto-home/contracts && npm run dev -w @projeto-home/server",
     "dev:web": "npm run build -w @projeto-home/contracts && npm run dev -w @projeto-home/web --",
+    "start": "npm run build && npm run start -w @projeto-home/server",
     "pretest": "npm run build -w @projeto-home/contracts",
     "test": "npm run test --workspaces --if-present",
     "pretypecheck": "npm run build -w @projeto-home/contracts",

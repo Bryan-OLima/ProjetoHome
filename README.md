@@ -144,6 +144,32 @@ npm run dev:web -- --host 0.0.0.0
 
 Não encaminhe essas portas para a internet.
 
+## Operação no S20 FE
+
+Em operação normal, o Vite não permanece em execução. O build do React é servido pelo mesmo processo Express que expõe a API, na porta `3000`.
+
+```bash
+npm ci
+npm run build
+bash scripts/termux/supervisor.sh
+```
+
+O processo atende em `http://0.0.0.0:3000` por padrão; acesse-o pelo IP local do aparelho a partir de outro dispositivo da rede. Os registros de execução e arquivos de PID ficam em `var/`, ignorados pelo Git. Para parar com segurança:
+
+```bash
+bash scripts/termux/stop-server.sh
+```
+
+Para iniciar após reinicializações, instale o complemento Termux:Boot, mantenha o repositório em `~/ProjetoHome` e execute uma vez:
+
+```bash
+mkdir -p ~/.termux/boot
+cp scripts/termux/boot-projeto-home.sh ~/.termux/boot/projeto-home
+chmod 700 ~/.termux/boot/projeto-home
+```
+
+O script usa `termux-wake-lock` enquanto o supervisor está ativo e tenta reiniciar o servidor após uma queda, com espera progressiva. A validação desse comportamento no S20 FE ainda é obrigatória antes de concluir a fase.
+
 ## Executando as provas
 
 ### SQLite e Drizzle

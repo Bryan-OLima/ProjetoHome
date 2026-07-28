@@ -30,6 +30,7 @@ models/
 
 # Logs, resultados e cobertura
 logs/
+var/
 *.log
 npm-debug.log*
 results/
