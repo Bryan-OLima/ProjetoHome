@@ -64,6 +64,12 @@ Implementar logs operacionais estruturados e auditoria mínima sem registrar dad
 - Validação da Etapa 2 aprovada no S20 FE em 2026-07-28: testes unitários, build de produção Vite, migrations das tabelas `audit_events` e `error_events`, `PRAGMA integrity_check = ok` e correlação do `requestId` no JSONL. Evidências locais: `var/validation/stage-2-20260728T185758Z/`.
 - Convenção obrigatória de commits registrada: categoria entre colchetes, mensagem curta em inglês e categoria principal única.
 - README consolidado como resumo e setup da aplicação atual, incluindo logging, auditoria, migrations e variáveis de operação.
+- Contratos Zod, DTOs públicos e rota tipada implementados para consulta de eventos persistidos, com body ausente declarado como `never`.
+- Caso de uso `ListPersistedEvents`, portas específicas de repositório e adaptador Drizzle implementados sem DAO genérico ou dependência adicional.
+- `GET /api/observability/events` implementado com filtros por tipo, período, serviço, ação e correlação, paginação por cursor e resposta sanitizada.
+- Política inicial de retenção implementada na inicialização: 365 dias para auditoria, 90 dias para erros e lote máximo configurável de 500 remoções por tabela.
+- Auditoria de sistema criada quando a retenção remove eventos expirados.
+- Validação local aprovada: typecheck dos três workspaces e 27 testes, cobrindo contratos, rota, filtros, cursor válido e inválido, sanitização, retenção em lote e contenção.
 
 ## Em andamento
 
@@ -71,7 +77,7 @@ Implementar logs operacionais estruturados e auditoria mínima sem registrar dad
 
 ## Próximo passo recomendado
 
-Implementar a API tipada de consulta aos eventos persistidos, com filtros e política inicial de retenção no SQLite.
+Criar a página `/logs` no frontend para consumir a API de eventos persistidos, com filtros, carregamento, vazio, erro e indisponibilidade.
 
 ## Primeira entrega de código implementada
 

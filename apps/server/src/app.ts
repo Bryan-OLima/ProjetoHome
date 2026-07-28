@@ -8,6 +8,11 @@ import express, {
 } from "express";
 import { existsSync } from "node:fs";
 import type { DatabaseHandle } from "./db/database.js";
+import { DrizzleEventRepository } from "./observability/drizzle-event-repository.js";
+import type { PersistedEventRepository } from "./observability/event-repository.js";
+import { createListPersistedEvents } from "./observability/list-persisted-events.js";
+import { createObservabilityRouter } from "./observability/routes.js";
+import { HttpError } from "./http-error.js";
 import {
   noopOperationalLogger,
   type OperationalLogger,
@@ -21,6 +26,7 @@ export interface AppOptions {
   now?: () => Date;
   uptime?: () => number;
   logger?: OperationalLogger;
+  eventRepository?: PersistedEventRepository;
 }
 
 export function createApp(options: AppOptions) {
@@ -28,6 +34,11 @@ export function createApp(options: AppOptions) {
   const now = options.now ?? (() => new Date());
   const uptime = options.uptime ?? (() => process.uptime());
   const logger = options.logger ?? noopOperationalLogger;
+  const eventRepository =
+    options.eventRepository ?? new DrizzleEventRepository(options.database);
+  const observabilityRouter = createObservabilityRouter({
+    listPersistedEvents: createListPersistedEvents({ repository: eventRepository }),
+  });
 
   app.disable("x-powered-by");
   app.use(requestContext);
@@ -66,6 +77,8 @@ export function createApp(options: AppOptions) {
     response.status(200).json(payload);
   });
 
+  app.use("/api/observability", observabilityRouter);
+
   if (options.webDistPath && existsSync(options.webDistPath)) {
     app.use(express.static(options.webDistPath));
   }
@@ -83,28 +96,32 @@ export function createApp(options: AppOptions) {
   app.use(notFound);
 
   const errorHandler: ErrorRequestHandler = (
-    _error,
+    error,
     _request,
     response,
     _next,
   ) => {
+    const httpError = error instanceof HttpError ? error : undefined;
+    const statusCode = httpError?.statusCode ?? 500;
+    const errorCode = httpError?.code ?? "internal_error";
+    const message = httpError?.message ?? "An unexpected error occurred.";
     logger.log({
-      level: "error",
+      level: statusCode >= 500 ? "error" : "warn",
       service: "http",
       action: "http.request.error",
       outcome: "failure",
       requestId: getRequestId(response.locals),
-      errorCode: "internal_error",
-      message: "Request processing failed.",
+      errorCode,
+      message,
     });
     const payload = ErrorResponseSchema.parse({
       error: {
-        code: "internal_error",
-        message: "An unexpected error occurred.",
+        code: errorCode,
+        message,
         requestId: getRequestId(response.locals),
       },
     });
-    response.status(500).json(payload);
+    response.status(statusCode).json(payload);
   };
   app.use(errorHandler);
 

@@ -7,7 +7,8 @@ import {
   createOperationalLogger,
   RotatingJsonlWriter,
 } from "./logging/operational-logger.js";
-import { PersistentEventStore } from "./observability/persistent-event-store.js";
+import { applyEventRetention } from "./observability/apply-event-retention.js";
+import { DrizzleEventRepository } from "./observability/drizzle-event-repository.js";
 
 const environmentFile = fileURLToPath(new URL("../.env", import.meta.url));
 if (existsSync(environmentFile)) {
@@ -19,7 +20,7 @@ const packageJson = JSON.parse(
   readFileSync(new URL("../package.json", import.meta.url), "utf8"),
 ) as { version: string };
 const database = openDatabase(config.databasePath);
-const persistentEvents = new PersistentEventStore(database);
+const eventRepository = new DrizzleEventRepository(database);
 const logWriter = new RotatingJsonlWriter({
   directory: config.logDirectory,
   maxBytes: config.logMaxBytes,
@@ -41,7 +42,7 @@ const logger = createOperationalLogger({
     );
   },
   onEvent(event) {
-    if (event.level === "error") persistentEvents.recordError(event);
+    if (event.level === "error") eventRepository.recordError(event);
   },
   onEventFailure(error) {
     console.error(
@@ -57,12 +58,51 @@ const logger = createOperationalLogger({
     );
   },
 });
+try {
+  const retention = applyEventRetention(eventRepository, {
+    auditRetentionDays: config.auditRetentionDays,
+    errorRetentionDays: config.errorRetentionDays,
+    batchSize: config.eventRetentionBatchSize,
+  });
+  if (retention.auditEventsDeleted > 0 || retention.errorEventsDeleted > 0) {
+    eventRepository.recordAudit({
+      actor: "system.retention",
+      action: "observability.retention",
+      resourceType: "observability",
+      outcome: "success",
+      context: {
+        auditEventsDeleted: retention.auditEventsDeleted,
+        errorEventsDeleted: retention.errorEventsDeleted,
+      },
+    });
+  }
+  logger.log({
+    level: "info",
+    service: "observability",
+    action: "observability.retention",
+    outcome: "success",
+    context: {
+      auditEventsDeleted: retention.auditEventsDeleted,
+      errorEventsDeleted: retention.errorEventsDeleted,
+    },
+  });
+} catch (error) {
+  logger.log({
+    level: "error",
+    service: "observability",
+    action: "observability.retention",
+    outcome: "failure",
+    errorCode: "retention_failed",
+    message: "Event retention could not be applied.",
+  });
+}
 const webDistPath = fileURLToPath(new URL("../../web/dist/", import.meta.url));
 const app = createApp({
   database,
   version: packageJson.version,
   webDistPath,
   logger,
+  eventRepository,
 });
 
 const server = app.listen(config.port, config.host, () => {

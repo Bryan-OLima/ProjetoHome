@@ -71,6 +71,8 @@ A sanitização remove campos associados a senhas, tokens, segredos, autenticaç
 
 Eventos de auditoria e logs de nível `error` também seguem para tabelas separadas no SQLite. A auditoria guarda somente ator, ação, tipo e identificador mínimo do recurso, permissão, resultado e identificadores de rastreio; erros guardam serviço, ação, código, mensagem pública, duração e contexto sanitizado. Eventos `debug`, `info` e `warn` não são duplicados no banco. Falhas nessa persistência são isoladas do registro JSONL e da requisição principal.
 
+As consultas persistidas seguem uma fronteira explícita: a rota Express valida a entrada com Zod e chama o caso de uso `ListPersistedEvents`; ele depende apenas da porta `PersistedEventRepository`; o adaptador `DrizzleEventRepository` traduz filtros, cursor e retenção para SQLite. A porta não expõe SQL, Drizzle ou CRUD genérico, permitindo substituir o adaptador sem alterar contratos HTTP ou casos de uso. Entidades internas usam `Date`; DTOs públicos usam timestamps ISO e união discriminada entre `audit` e `error`.
+
 ### SQLite
 
 Armazena configurações não secretas, metadados, estados, histórico necessário e referências de auditoria. O backend é o único proprietário do arquivo e usa Drizzle ORM com o driver nativo `node:sqlite` como camada de acesso. Tokens e segredos exigem armazenamento protegido e não devem ser tratados como dados comuns.
@@ -78,6 +80,8 @@ Armazena configurações não secretas, metadados, estados, histórico necessár
 O banco opera em WAL para permitir leitores simultâneos durante uma escrita. Como existe apenas um escritor por vez, transações devem durar poucos milissegundos e nenhuma operação de rede ou IA pode ocorrer dentro delas. A configuração inicial inclui chaves estrangeiras, `busy_timeout=5000` e `synchronous=NORMAL`.
 
 As migrations versionadas são aplicadas na abertura controlada do banco, antes de o servidor aceitar requisições. A migration inicial da aplicação cria `audit_events` e `error_events`, com índices de tempo, correlação e campos principais de filtro. Se a migration falhar, a conexão é fechada e o servidor não inicia com schema parcial.
+
+Na inicialização, a política de retenção remove no máximo um lote de eventos expirados de cada tabela. Os padrões são 365 dias para auditoria, 90 dias para erros e 500 remoções por tabela; todos são configuráveis por ambiente. Quando há remoção, o backend grava uma auditoria mínima do sistema. O lote limitado mantém as operações de manutenção curtas no S20 FE.
 
 ### Fila interna
 

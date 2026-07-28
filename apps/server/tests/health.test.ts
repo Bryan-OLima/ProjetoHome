@@ -1,11 +1,14 @@
 import {
   ErrorResponseSchema,
   HealthResponseSchema,
+  ListPersistedEventsResponseSchema,
+  OperationalLogEventSchema,
 } from "@projeto-home/contracts";
 import request from "supertest";
 import { afterEach, describe, expect, it } from "vitest";
 import { createApp } from "../src/app.js";
 import type { OperationalLogInput } from "../src/logging/operational-logger.js";
+import { DrizzleEventRepository } from "../src/observability/drizzle-event-repository.js";
 import { createTestDatabase, createTestWebDist } from "./helpers.js";
 
 const cleanups: Array<() => void> = [];
@@ -80,6 +83,71 @@ describe("GET /health", () => {
           outcome: "failure",
         }),
       ]),
+    );
+  });
+
+  it("returns validated persisted events with typed query filters", async () => {
+    const testDatabase = createTestDatabase("event-route");
+    cleanups.push(testDatabase.cleanup);
+    const repository = new DrizzleEventRepository(testDatabase.database);
+    repository.recordError(
+      OperationalLogEventSchema.parse({
+        timestamp: "2026-07-28T12:00:00.000Z",
+        level: "error",
+        service: "http",
+        action: "http.request",
+        outcome: "failure",
+        errorCode: "internal_error",
+      }),
+    );
+    const app = createApp({
+      database: testDatabase.database,
+      version: "test",
+      eventRepository: repository,
+    });
+
+    const response = await request(app)
+      .get("/api/observability/events?kind=error&service=http&limit=1")
+      .expect(200);
+    const payload = ListPersistedEventsResponseSchema.parse(response.body);
+
+    expect(payload.items).toHaveLength(1);
+    expect(payload.items[0]).toMatchObject({
+      kind: "error",
+      service: "http",
+      action: "http.request",
+    });
+    expect(response.headers["x-request-id"]).toMatch(
+      /^[0-9a-f-]{36}$/i,
+    );
+  });
+
+  it("rejects invalid persisted event filters with a safe client error", async () => {
+    const testDatabase = createTestDatabase("invalid-event-query");
+    cleanups.push(testDatabase.cleanup);
+    const app = createApp({ database: testDatabase.database, version: "test" });
+
+    const response = await request(app)
+      .get("/api/observability/events?kind=audit&service=http")
+      .expect(400);
+
+    expect(ErrorResponseSchema.parse(response.body).error).toMatchObject({
+      code: "invalid_request",
+      message: "Request parameters are invalid.",
+    });
+  });
+
+  it("rejects a malformed persisted event cursor with a safe client error", async () => {
+    const testDatabase = createTestDatabase("invalid-event-cursor");
+    cleanups.push(testDatabase.cleanup);
+    const app = createApp({ database: testDatabase.database, version: "test" });
+
+    const response = await request(app)
+      .get("/api/observability/events?cursor=not-a-cursor")
+      .expect(400);
+
+    expect(ErrorResponseSchema.parse(response.body).error.code).toBe(
+      "invalid_request",
     );
   });
 

@@ -1,9 +1,14 @@
-import { OperationalLogEventSchema } from "@projeto-home/contracts";
+import {
+  ListPersistedEventsQuerySchema,
+  OperationalLogEventSchema,
+} from "@projeto-home/contracts";
 import { eq } from "drizzle-orm";
 import { Worker } from "node:worker_threads";
 import { afterEach, describe, expect, it } from "vitest";
 import { auditEvents, errorEvents } from "../src/db/schema.js";
-import { PersistentEventStore } from "../src/observability/persistent-event-store.js";
+import { DrizzleEventRepository } from "../src/observability/drizzle-event-repository.js";
+import { applyEventRetention } from "../src/observability/apply-event-retention.js";
+import { createListPersistedEvents } from "../src/observability/list-persisted-events.js";
 import { createTestDatabase } from "./helpers.js";
 
 const cleanups: Array<() => void> = [];
@@ -13,7 +18,7 @@ describe("PersistentEventStore", () => {
   it("applies the migration and stores only sanitized audit metadata", () => {
     const testDatabase = createTestDatabase("audit");
     cleanups.push(testDatabase.cleanup);
-    const store = new PersistentEventStore(
+    const store = new DrizzleEventRepository(
       testDatabase.database,
       () => new Date("2026-07-28T12:00:00.000Z"),
     );
@@ -54,7 +59,7 @@ describe("PersistentEventStore", () => {
   it("persists only error-level operational events", () => {
     const testDatabase = createTestDatabase("errors");
     cleanups.push(testDatabase.cleanup);
-    const store = new PersistentEventStore(testDatabase.database);
+    const store = new DrizzleEventRepository(testDatabase.database);
     const baseEvent = {
       timestamp: "2026-07-28T12:00:00.000Z",
       service: "http",
@@ -86,6 +91,121 @@ describe("PersistentEventStore", () => {
       message: "token=[REDACTED]",
     });
     expect(rows[0]?.context).not.toContain("session=private");
+  });
+
+  it("filters persisted events and paginates with an opaque cursor", () => {
+    const testDatabase = createTestDatabase("event-query");
+    cleanups.push(testDatabase.cleanup);
+    let currentTime = new Date("2026-07-28T10:00:00.000Z");
+    const repository = new DrizzleEventRepository(
+      testDatabase.database,
+      () => currentTime,
+    );
+    const listEvents = createListPersistedEvents({ repository });
+
+    repository.recordAudit({
+      actor: "local.admin",
+      action: "settings.update",
+      resourceType: "settings",
+      outcome: "success",
+    });
+    currentTime = new Date("2026-07-28T12:00:00.000Z");
+    repository.recordError(
+      OperationalLogEventSchema.parse({
+        timestamp: currentTime.toISOString(),
+        level: "error",
+        service: "http",
+        action: "http.request",
+        outcome: "failure",
+      }),
+    );
+    currentTime = new Date("2026-07-28T13:00:00.000Z");
+    repository.recordError(
+      OperationalLogEventSchema.parse({
+        timestamp: currentTime.toISOString(),
+        level: "error",
+        service: "http",
+        action: "http.request.error",
+        outcome: "failure",
+      }),
+    );
+
+    const firstPage = listEvents.execute(
+      ListPersistedEventsQuerySchema.parse({
+        kind: "error",
+        service: "http",
+        limit: "1",
+      }),
+    );
+    expect(firstPage.items).toHaveLength(1);
+    expect(firstPage.items[0]).toMatchObject({
+      kind: "error",
+      action: "http.request.error",
+    });
+    expect(firstPage.nextCursor).toEqual(expect.any(String));
+
+    const secondPage = listEvents.execute(
+      ListPersistedEventsQuerySchema.parse({
+        kind: "error",
+        service: "http",
+        limit: "1",
+        cursor: firstPage.nextCursor,
+      }),
+    );
+    expect(secondPage.items).toHaveLength(1);
+    expect(secondPage.items[0]).toMatchObject({
+      kind: "error",
+      action: "http.request",
+    });
+    expect(secondPage.nextCursor).toBeUndefined();
+  });
+
+  it("prunes expired audit and error events in bounded batches", () => {
+    const testDatabase = createTestDatabase("retention");
+    cleanups.push(testDatabase.cleanup);
+    let currentTime = new Date("2024-01-01T00:00:00.000Z");
+    const repository = new DrizzleEventRepository(
+      testDatabase.database,
+      () => currentTime,
+    );
+    repository.recordAudit({
+      actor: "local.admin",
+      action: "settings.update",
+      resourceType: "settings",
+      outcome: "success",
+    });
+    repository.recordError(
+      OperationalLogEventSchema.parse({
+        timestamp: currentTime.toISOString(),
+        level: "error",
+        service: "http",
+        action: "http.request",
+        outcome: "failure",
+      }),
+    );
+    currentTime = new Date("2024-01-02T00:00:00.000Z");
+    repository.recordAudit({
+      actor: "local.admin",
+      action: "settings.update",
+      resourceType: "settings",
+      outcome: "success",
+    });
+    currentTime = new Date("2026-07-28T00:00:00.000Z");
+    repository.recordAudit({
+      actor: "local.admin",
+      action: "settings.update",
+      resourceType: "settings",
+      outcome: "success",
+    });
+
+    const result = applyEventRetention(
+      repository,
+      { auditRetentionDays: 365, errorRetentionDays: 90, batchSize: 1 },
+      currentTime,
+    );
+    expect(result).toEqual({ auditEventsDeleted: 1, errorEventsDeleted: 1 });
+    expect(testDatabase.database.db.select().from(auditEvents).all()).toHaveLength(2);
+    expect(testDatabase.database.db.select().from(errorEvents).all()).toHaveLength(0);
   });
 
   it("waits for a short competing write and preserves the audit event", async () => {

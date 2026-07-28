@@ -13,3 +13,18 @@ export {
   type LogOutcome,
   type OperationalLogEvent,
 } from "./logging.js";
+export {
+  AuditEventDtoSchema,
+  ErrorEventDtoSchema,
+  ListPersistedEventsQuerySchema,
+  ListPersistedEventsResponseSchema,
+  PersistedEventDtoSchema,
+  PersistedEventKindSchema,
+  type AuditEventDto,
+  type ErrorEventDto,
+  type ListPersistedEventsQuery,
+  type ListPersistedEventsQueryInput,
+  type ListPersistedEventsResponse,
+  type PersistedEventDto,
+  type PersistedEventKind,
+} from "./observability.js";

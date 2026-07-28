@@ -47,6 +47,7 @@ As versões validadas na prova do banco foram `drizzle-orm@1.0.0-rc.4` e `drizzl
 - Cada resposta HTTP gera um log operacional JSONL com nível, ação, resultado, duração e o mesmo `requestId` retornado ao cliente.
 - Logs operacionais ficam em `var/log/operational.jsonl`, com rotação de 5 MiB e retenção de até sete arquivos por padrão.
 - Ações sensíveis podem ser registradas em `audit_events`; eventos de nível `error` são mantidos em `error_events` no SQLite.
+- `GET /api/observability/events` consulta eventos persistidos com filtros tipados, paginação por cursor e resposta sanitizada.
 - Senhas, tokens, segredos, cookies, sessões e conteúdo privado são removidos antes do registro.
 - As migrations são aplicadas automaticamente ao iniciar o backend. Um erro na migration impede a inicialização com schema parcial.
 
@@ -63,6 +64,9 @@ Copie `apps/server/.env.example` para `apps/server/.env` somente quando precisar
 | `LOG_DIRECTORY` | `./var/log` | Diretório dos logs operacionais JSONL. |
 | `LOG_MAX_BYTES` | `5242880` | Tamanho máximo do arquivo JSONL ativo antes da rotação. |
 | `LOG_MAX_FILES` | `7` | Quantidade máxima de arquivos JSONL, incluindo o ativo. |
+| `AUDIT_RETENTION_DAYS` | `365` | Retenção dos eventos de auditoria no SQLite. |
+| `ERROR_RETENTION_DAYS` | `90` | Retenção dos eventos de erro no SQLite. |
+| `EVENT_RETENTION_BATCH_SIZE` | `500` | Máximo de eventos removidos de cada tabela por inicialização. |
 
 ### SQLite
 
@@ -76,6 +80,16 @@ PRAGMA synchronous = NORMAL;
 ```
 
 Somente o backend abre o arquivo ativo. Transações devem ser curtas e nunca aguardar rede, webhook ou inferência. O banco permanece no armazenamento interno do Termux.
+
+### Consulta de eventos persistidos
+
+```text
+GET /api/observability/events
+```
+
+Filtros opcionais: `kind` (`audit` ou `error`), `from`, `to`, `service`, `action`, `correlationId`, `cursor` e `limit` (1 a 100; padrão 50). `service` só pode ser usado para eventos de erro. A resposta possui `items` e, quando houver próxima página, `nextCursor`.
+
+A retenção é aplicada na inicialização em lotes curtos. Auditorias removidas após o prazo padrão de 365 dias e erros após 90 dias geram um evento de auditoria do sistema com as quantidades removidas.
 
 ### IA local
 
