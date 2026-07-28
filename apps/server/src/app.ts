@@ -8,6 +8,10 @@ import express, {
 } from "express";
 import { existsSync } from "node:fs";
 import type { DatabaseHandle } from "./db/database.js";
+import {
+  noopOperationalLogger,
+  type OperationalLogger,
+} from "./logging/operational-logger.js";
 import { getRequestId, requestContext } from "./request-context.js";
 
 export interface AppOptions {
@@ -16,16 +20,34 @@ export interface AppOptions {
   webDistPath?: string;
   now?: () => Date;
   uptime?: () => number;
+  logger?: OperationalLogger;
 }
 
 export function createApp(options: AppOptions) {
   const app = express();
   const now = options.now ?? (() => new Date());
   const uptime = options.uptime ?? (() => process.uptime());
+  const logger = options.logger ?? noopOperationalLogger;
 
   app.disable("x-powered-by");
-  app.use(express.json({ limit: "32kb" }));
   app.use(requestContext);
+  app.use((_request, response, next) => {
+    const startedAt = process.hrtime.bigint();
+    response.once("finish", () => {
+      const statusCode = response.statusCode;
+      logger.log({
+        level: statusCode >= 500 ? "error" : statusCode >= 400 ? "warn" : "info",
+        service: "http",
+        action: "http.request",
+        outcome: statusCode >= 400 ? "failure" : "success",
+        requestId: getRequestId(response.locals),
+        durationMs: Number(process.hrtime.bigint() - startedAt) / 1_000_000,
+        context: { statusCode },
+      });
+    });
+    next();
+  });
+  app.use(express.json({ limit: "32kb" }));
 
   app.get("/health", (_request, response) => {
     if (!options.database.isHealthy()) {
@@ -66,6 +88,15 @@ export function createApp(options: AppOptions) {
     response,
     _next,
   ) => {
+    logger.log({
+      level: "error",
+      service: "http",
+      action: "http.request.error",
+      outcome: "failure",
+      requestId: getRequestId(response.locals),
+      errorCode: "internal_error",
+      message: "Request processing failed.",
+    });
     const payload = ErrorResponseSchema.parse({
       error: {
         code: "internal_error",

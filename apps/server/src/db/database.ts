@@ -1,11 +1,20 @@
 import { mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { DatabaseSync } from "node:sqlite";
 import { drizzle } from "drizzle-orm/node-sqlite";
+import { migrate } from "drizzle-orm/node-sqlite/migrator";
+
+const defaultMigrationsFolder = fileURLToPath(
+  new URL("../../drizzle", import.meta.url),
+);
 
 export type DatabaseHandle = ReturnType<typeof openDatabase>;
 
-export function openDatabase(databasePath: string) {
+export function openDatabase(
+  databasePath: string,
+  migrationsFolder = defaultMigrationsFolder,
+) {
   const absolutePath = resolve(databasePath);
   mkdirSync(dirname(absolutePath), { recursive: true });
 
@@ -16,6 +25,12 @@ export function openDatabase(databasePath: string) {
   sqlite.exec("PRAGMA synchronous = NORMAL;");
 
   const db = drizzle({ client: sqlite });
+  try {
+    migrate(db, { migrationsFolder });
+  } catch (error) {
+    sqlite.close();
+    throw error;
+  }
 
   return {
     db,

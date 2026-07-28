@@ -2,7 +2,7 @@
 
 **Atualizado em:** 2026-07-28  
 **Fase atual:** Etapa 2 — Logging service e auditoria mínima
-**Estado geral:** Etapa 1 concluída e validada no S20 FE; Etapa 2 ainda não iniciada
+**Estado geral:** Etapa 1 concluída e validada no S20 FE; dois incrementos da Etapa 2 implementados e validados localmente
 
 ## Objetivo da fase atual
 
@@ -48,14 +48,28 @@ Implementar logs operacionais estruturados e auditoria mínima sem registrar dad
 - Estratégia de logs aprovada: JSONL rotativo para operação e SQLite para auditoria, erros relevantes e histórico consultável.
 - Estratégia de autenticação aprovada: conta administradora local, Argon2id, sessões revogáveis e HTTPS antes de dados sensíveis.
 - Etapa 1 validada no S20 FE: `npm ci`, typecheck, testes e build concluídos; frontend servido pelo Express; recuperação após encerramento forçado; acesso pela rede local; e inicialização automática pelo Termux:Boot confirmados.
+- Contrato compartilhado de evento operacional criado com timestamp, nível, serviço, ação, resultado, `requestId`, `correlationId`, duração, código de erro, mensagem e contexto opcionais.
+- Sanitização central implementada para remover senhas, tokens, segredos, autenticação, cookies, sessões e conteúdo privado, com limites de profundidade e tamanho.
+- Armazenamento operacional implementado em JSONL rotativo, com padrão de 5 MiB por arquivo e retenção máxima de sete arquivos incluindo o ativo.
+- Ciclo HTTP integrado ao logging com resultado, duração, status e correlação pelo mesmo `requestId` enviado ao cliente.
+- Falhas na escrita da telemetria isoladas do fluxo principal e reportadas ao stderr sem conteúdo do evento.
+- Validação local do primeiro incremento da Etapa 2 aprovada: typecheck dos três workspaces, 14 testes e build de produção, incluindo contrato, sanitização, rotação, retenção, isolamento de falha e correlação HTTP em sucesso e erro.
+- Contrato compartilhado de auditoria criado com ator, ação, recurso mínimo, permissão, resultado e identificadores de rastreio.
+- Migration versionada criada para tabelas separadas de auditoria e erros relevantes, com índices de tempo, ação ou serviço e correlação.
+- Migrations integradas à abertura controlada do SQLite; uma falha fecha a conexão e impede inicialização com schema parcial.
+- Serviço de persistência implementado com nova sanitização na fronteira do banco e escritas síncronas curtas.
+- Apenas logs de nível `error` são duplicados no SQLite; eventos operacionais de maior volume permanecem somente no JSONL.
+- Falha ao persistir um erro no SQLite permanece isolada do JSONL e do fluxo HTTP.
+- Validação local do segundo incremento da Etapa 2 aprovada: typecheck dos três workspaces e 19 testes, cobrindo migration, auditoria sanitizada, seleção de erros relevantes e espera por contenção em WAL.
 
 ## Em andamento
 
-Nenhum item da Etapa 2 iniciado.
+- Etapa 2 — logging service e auditoria mínima.
+- A validação deste incremento no S20 FE ainda está pendente.
 
 ## Próximo passo recomendado
 
-Implementar o contrato de evento de log estruturado, a sanitização central e o armazenamento operacional em JSONL rotativo.
+Implementar a API tipada de consulta aos eventos persistidos, com filtros e política inicial de retenção no SQLite.
 
 ## Primeira entrega de código implementada
 

@@ -160,6 +160,16 @@ O processo atende em `http://0.0.0.0:3000` por padrão; acesse-o pelo IP local d
 bash scripts/termux/stop-server.sh
 ```
 
+### Validação da Etapa 2
+
+Após trazer a versão com logging e auditoria para o aparelho, execute o ensaio completo no Termux:
+
+```bash
+bash scripts/termux/validate-stage-2.sh
+```
+
+Ele usa banco, logs e porta temporários em `var/validation/`, sem tocar no banco ativo, e valida dependências, tipos, testes, build, migrations, integridade do SQLite e correlação de uma requisição no JSONL.
+
 Para iniciar após reinicializações, instale o complemento Termux:Boot, mantenha o repositório em `~/ProjetoHome` e execute uma vez:
 
 ```bash
