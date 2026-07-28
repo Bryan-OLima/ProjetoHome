@@ -76,6 +76,9 @@ Implementar logs operacionais estruturados e auditoria mínima sem registrar dad
 - Adaptador JSONL separado implementado com leitura reversa em blocos, limite configurável de bytes, arquivos rotativos conhecidos e nova sanitização/validação antes da resposta.
 - Validação local aprovada: typecheck dos três workspaces e 31 testes, cobrindo rota, filtros, ordem dos arquivos rotativos, teto de leitura e nova sanitização dos registros lidos.
 - Validação em produção no S20 FE aprovada em 2026-07-28: `npm ci`, typecheck, 31 testes, build de produção, migrations, `PRAGMA integrity_check = ok`, correlação pelo `requestId` no JSONL e resposta válida da consulta de logs operacionais. Evidências locais: `var/validation/stage-2-20260728T201648Z/`.
+- Página `/logs` implementada para consultar, em seções separadas, eventos persistidos e logs operacionais; possui filtros por período, nível, tipo, serviço, ação e correlação, além de detalhes técnicos sanitizados.
+- Rota `/logs` entregue pelo Express em produção e proxy de desenvolvimento configurado para `/api`.
+- Validação local da página aprovada: typecheck dos três workspaces, 35 testes e build de produção, cobrindo sucesso, filtros, vazio, indisponibilidade, erro de API e entrega da rota estática.
 
 ## Em andamento
 
@@ -83,7 +86,7 @@ Implementar logs operacionais estruturados e auditoria mínima sem registrar dad
 
 ## Próximo passo recomendado
 
-Criar a página `/logs` no frontend para consumir eventos persistidos e logs operacionais, com filtros, carregamento, vazio, erro e indisponibilidade.
+Validar a página `/logs` no S20 FE. Depois dessa evidência, encerrar a Etapa 2 e iniciar o planejamento da Etapa 3 — monitoramento do aparelho e dashboard.
 
 ## Primeira entrega de código implementada
 

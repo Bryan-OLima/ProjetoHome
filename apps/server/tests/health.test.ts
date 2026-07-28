@@ -218,4 +218,19 @@ describe("GET /health", () => {
     expect(response.headers["content-type"]).toMatch(/text\/html/);
     expect(response.text).toContain("Projeto Home estático");
   });
+
+  it("serves the frontend entry point for the logs page", async () => {
+    const testDatabase = createTestDatabase("static-logs");
+    const testWebDist = createTestWebDist();
+    cleanups.push(testDatabase.cleanup, testWebDist.cleanup);
+    const app = createApp({
+      database: testDatabase.database,
+      version: "test",
+      webDistPath: testWebDist.directory,
+    });
+
+    const response = await request(app).get("/logs").expect(200);
+    expect(response.headers["content-type"]).toMatch(/text\/html/);
+    expect(response.text).toContain("Projeto Home estático");
+  });
 });

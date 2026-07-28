@@ -49,6 +49,7 @@ As versões validadas na prova do banco foram `drizzle-orm@1.0.0-rc.4` e `drizzl
 - Ações sensíveis podem ser registradas em `audit_events`; eventos de nível `error` são mantidos em `error_events` no SQLite.
 - `GET /api/observability/events` consulta eventos persistidos com filtros tipados, paginação por cursor e resposta sanitizada.
 - `GET /api/observability/operational-logs` consulta os arquivos JSONL rotativos mais recentes com filtros tipados e leitura limitada, sem carregar os arquivos inteiros em memória.
+- A página `/logs` reúne as duas fontes, permite filtros por período, nível, tipo, serviço, ação e correlação, e apresenta detalhes técnicos já sanitizados.
 - Senhas, tokens, segredos, cookies, sessões e conteúdo privado são removidos antes do registro.
 - As migrations são aplicadas automaticamente ao iniciar o backend. Um erro na migration impede a inicialização com schema parcial.
 
@@ -279,4 +280,4 @@ O modelo GGUF não é versionado no repositório. Consulte as instruções, hash
 
 ## Próximo passo
 
-Criar a página `/logs` no frontend para consumir os eventos persistidos e os logs operacionais, com filtros e estados de carregamento, vazio, erro e indisponibilidade.
+Validar a página `/logs` no S20 FE; em seguida, encerrar a Etapa 2 e iniciar o planejamento da Etapa 3 — monitoramento do aparelho e dashboard.

@@ -38,12 +38,14 @@ flowchart LR
 Em produção, o Vite gera `apps/web/dist` e não permanece em execução. O Express entrega esses arquivos estáticos junto da API, reduzindo a operação no S20 FE a uma porta e um processo Node.js.
 
 - Dashboard e status do servidor.
-- Central de logs e observabilidade.
+- Central de logs e observabilidade em `/logs`, com consulta separada aos eventos SQLite e aos logs operacionais JSONL.
 - Interface de consulta ao assistente.
 - Telas de storage, PC, jogos, Sunshine e impressora.
 - Apresentação de texto e dados estruturados.
 
 O frontend nunca é uma fronteira de autorização. Toda permissão é revalidada pelo backend.
+
+A página de logs envia filtros validados aos dois contratos públicos, mostra as fontes em seções distintas e expõe apenas os detalhes que já chegaram sanitizados pelo backend. Estados de carregamento, vazio, indisponibilidade e falha de API permanecem explícitos para não confundir ausência de eventos com falta de conectividade.
 
 ### Backend Node.js e TypeScript
 

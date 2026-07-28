@@ -7,6 +7,7 @@ import express, {
   type RequestHandler,
 } from "express";
 import { existsSync } from "node:fs";
+import { join } from "node:path";
 import type { DatabaseHandle } from "./db/database.js";
 import { DrizzleEventRepository } from "./observability/drizzle-event-repository.js";
 import type { PersistedEventRepository } from "./observability/event-repository.js";
@@ -93,6 +94,9 @@ export function createApp(options: AppOptions) {
 
   if (options.webDistPath && existsSync(options.webDistPath)) {
     app.use(express.static(options.webDistPath));
+    app.get("/logs", (_request, response) => {
+      response.sendFile(join(options.webDistPath!, "index.html"));
+    });
   }
 
   const notFound: RequestHandler = (_request, response) => {
