@@ -4,6 +4,9 @@
   "private": true,
   "type": "module",
   "packageManager": "npm@11.18.0",
+  "allowScripts": {
+    "esbuild@0.25.12": true
+  },
   "workspaces": [
     "packages/contracts",
     "apps/server",
