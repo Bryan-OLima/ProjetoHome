@@ -101,3 +101,4 @@ Não troque tecnologia fixada sem registrar motivação, impacto, migração, va
 - Não adicione dependência de produção sem necessidade demonstrável.
 - Não versione `node_modules`, bancos, modelos GGUF, resultados temporários, segredos ou artefatos gerados sem necessidade.
 - Preserve as provas de conceito; remova-as somente após decisão explícita e quando suas evidências estiverem registradas em outro lugar.
+- Todo commit deve obedecer à convenção definida em [`docs/COMMIT_CONVENTIONS.md`](./docs/COMMIT_CONVENTIONS.md). A mensagem começa obrigatoriamente com uma categoria entre colchetes, é escrita em inglês e descreve a mudança de forma direta.

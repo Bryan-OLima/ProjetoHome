@@ -2,7 +2,7 @@
 
 **Atualizado em:** 2026-07-28  
 **Fase atual:** Etapa 2 — Logging service e auditoria mínima
-**Estado geral:** Etapa 1 concluída e validada no S20 FE; dois incrementos da Etapa 2 implementados e validados localmente
+**Estado geral:** Etapa 1 concluída e validada no S20 FE; dois incrementos da Etapa 2 implementados e validados no S20 FE
 
 ## Objetivo da fase atual
 
@@ -61,11 +61,12 @@ Implementar logs operacionais estruturados e auditoria mínima sem registrar dad
 - Apenas logs de nível `error` são duplicados no SQLite; eventos operacionais de maior volume permanecem somente no JSONL.
 - Falha ao persistir um erro no SQLite permanece isolada do JSONL e do fluxo HTTP.
 - Validação local do segundo incremento da Etapa 2 aprovada: typecheck dos três workspaces e 19 testes, cobrindo migration, auditoria sanitizada, seleção de erros relevantes e espera por contenção em WAL.
+- Validação da Etapa 2 aprovada no S20 FE em 2026-07-28: testes unitários, build de produção Vite, migrations das tabelas `audit_events` e `error_events`, `PRAGMA integrity_check = ok` e correlação do `requestId` no JSONL. Evidências locais: `var/validation/stage-2-20260728T185758Z/`.
+- Convenção obrigatória de commits registrada: categoria entre colchetes, mensagem curta em inglês e categoria principal única.
 
 ## Em andamento
 
 - Etapa 2 — logging service e auditoria mínima.
-- A validação deste incremento no S20 FE ainda está pendente.
 
 ## Próximo passo recomendado
 

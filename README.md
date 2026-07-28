@@ -2,7 +2,7 @@
 
 Plataforma pessoal e local para transformar um Samsung Galaxy S20 FE em um servidor doméstico. O projeto reunirá dashboard, monitoramento, armazenamento, automações, integrações e um assistente com IA local, preservando privacidade e controle do usuário.
 
-> **Estado atual:** Etapa 1 concluída e validada no S20 FE, incluindo rede local, recuperação automática e Termux:Boot. Consulte o [estado operacional](./docs/CURRENT_STATE.md) antes de implementar.
+> **Estado atual:** Etapa 2 em andamento. Logging operacional, auditoria SQLite e migrations foram validados no S20 FE. Consulte o [estado operacional](./docs/CURRENT_STATE.md) antes de implementar.
 
 ## Objetivos
 
@@ -76,6 +76,13 @@ Qualquer exposição do servidor de IA à rede exige autenticação e CORS restr
 - 100 escritas distribuídas entre quatro conexões sem perda.
 - Rollback, chaves estrangeiras e recuperação após interrupção aprovados.
 - `PRAGMA integrity_check` retornou `ok`.
+
+### Logging e auditoria
+
+- Testes unitários, typecheck e build de produção aprovados no S20 FE.
+- Migrations aplicadas com as tabelas `audit_events` e `error_events`.
+- `PRAGMA integrity_check` retornou `ok`.
+- Uma requisição de health foi correlacionada ao evento JSONL pelo mesmo `requestId`.
 
 ### IA
 
@@ -204,6 +211,7 @@ O modelo GGUF não é versionado no repositório. Consulte as instruções, hash
 - [Regras do projeto](./docs/PROJECT_RULES.md) — stack e restrições obrigatórias.
 - [Arquitetura](./docs/ARCHITECTURE.md) — componentes, fluxos e fronteiras de confiança.
 - [Estado atual](./docs/CURRENT_STATE.md) — concluído, em andamento, pendências e próximo passo.
+- [Convenções de commit](./docs/COMMIT_CONVENTIONS.md) — formato e categorias obrigatórias para o histórico Git.
 - [Instruções para agentes](./AGENTS.md) — fluxo obrigatório para trabalho automatizado no repositório.
 
 ## Segurança
@@ -217,4 +225,4 @@ O modelo GGUF não é versionado no repositório. Consulte as instruções, hash
 
 ## Próximo passo
 
-Executar `npm ci`, tipagem, testes, build e o fluxo `/health` no Termux; depois confirmar a dashboard online e offline a partir de outro dispositivo da rede local.
+Implementar a API tipada de consulta aos eventos persistidos, com filtros e política inicial de retenção no SQLite.
