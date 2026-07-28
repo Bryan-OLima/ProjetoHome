@@ -15,7 +15,8 @@ Objetivo: colocar o servidor no ar e torná-lo observável antes de adicionar in
 - Preparar Termux, Node.js, Git e acesso ao armazenamento.
 - Usar npm como gerenciador de pacotes.
 - Criar backend em Node.js e TypeScript.
-- Criar frontend em React.
+- Criar frontend em React com Vite e `@vitejs/plugin-react`.
+- Organizar servidor, frontend e contratos Zod em npm workspaces.
 - Configurar SQLite com o driver `node:sqlite`, Drizzle ORM, WAL, chaves estrangeiras e espera controlada por locks.
 - Executar frontend e backend na rede local.
 - Definir inicialização, reinício e recuperação após falhas.

@@ -41,7 +41,9 @@ Não marque uma etapa como concluída com testes obrigatórios falhando, sem evi
 ## Stack e decisões fixadas
 
 - Node.js, npm e TypeScript. Não introduza Yarn ou pnpm.
-- Express no backend e React no frontend.
+- Monorepo nativo com npm workspaces: `packages/contracts`, `apps/server` e `apps/web`; o futuro PC Agent entra em `apps/pc-agent`.
+- Express no backend e React com Vite e `@vitejs/plugin-react` no frontend. Não introduza SWC sem necessidade e validação no Termux.
+- Zod 4 define contratos compartilhados; schemas Drizzle permanecem exclusivos do backend.
 - Vitest, Supertest e React Testing Library para validação.
 - SQLite pelo `node:sqlite`, com Drizzle ORM e migrations versionadas.
 - A prova aprovada usou `drizzle-orm@1.0.0-rc.4` e `drizzle-kit@1.0.0-rc.4`; uma atualização exige repetir migration, concorrência e recuperação.

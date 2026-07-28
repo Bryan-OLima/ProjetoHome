@@ -41,6 +41,9 @@ Este documento define a ordem operacional de construção. Cada etapa deve resul
 ### Ferramentas definidas
 
 - npm como gerenciador de pacotes.
+- npm workspaces com `packages/contracts`, `apps/server` e `apps/web`.
+- Vite com `@vitejs/plugin-react` para o frontend.
+- Zod 4 para contratos e validação de esquemas.
 - Vitest como runner de testes.
 - Supertest para testes HTTP.
 - React Testing Library para testes de interface.
@@ -285,7 +288,6 @@ Cada item deve receber uma especificação própria antes da implementação.
 
 As seguintes escolhas ainda não foram fechadas e não devem ser presumidas:
 
-- ferramenta de build do frontend;
 - formato físico de armazenamento de logs;
 - estratégia de autenticação dos usuários da dashboard;
 - protocolo específico da impressora 3D;

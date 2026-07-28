@@ -122,6 +122,20 @@ Os nomes físicos podem ser ajustados quando o projeto for inicializado, mas as 
 - `backup`: backup, retenção e restauração.
 - `queue`: ingestão e processamento controlado de tarefas assíncronas.
 
+## Estrutura física aprovada
+
+O repositório usa npm workspaces, sem Nx ou Turborepo:
+
+```text
+apps/
+├── server/       # Express, SQLite, integrações e orquestração
+└── web/          # React e Vite
+packages/
+└── contracts/    # Schemas Zod e tipos compartilhados
+```
+
+O futuro agente do computador será adicionado como `apps/pc-agent/`. O pacote `contracts` contém apenas contratos entre fronteiras; schemas e detalhes internos do Drizzle permanecem no servidor.
+
 ## Contratos essenciais
 
 ### Envelope de erro
@@ -221,9 +235,7 @@ Todos os eventos compartilham correlação, mas não armazenam o corpo integral 
 
 ## Decisões arquiteturais pendentes
 
-- Estrutura física do repositório: monorepo ou pacotes separados.
 - Gerenciamento e injeção de dependências.
-- Biblioteca de validação de esquemas.
 - Armazenamento e consulta dos logs.
 - Estratégia de carregamento e descarregamento do modelo no Android.
 - Mecanismo de autenticação da dashboard.

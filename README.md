@@ -2,7 +2,7 @@
 
 Plataforma pessoal e local para transformar um Samsung Galaxy S20 FE em um servidor doméstico. O projeto reunirá dashboard, monitoramento, armazenamento, automações, integrações e um assistente com IA local, preservando privacidade e controle do usuário.
 
-> **Estado atual:** fundação documental e provas técnicas concluídas. A aplicação principal está entrando na Etapa 1 — preparação do ambiente e do esqueleto. Consulte o [estado operacional](./docs/CURRENT_STATE.md) antes de implementar.
+> **Estado atual:** primeira entrega vertical da Etapa 1 implementada e validada localmente. A repetição no S20 FE e o acesso pela rede local são as próximas verificações. Consulte o [estado operacional](./docs/CURRENT_STATE.md) antes de implementar.
 
 ## Objetivos
 
@@ -26,8 +26,10 @@ Plataforma pessoal e local para transformar um Samsung Galaxy S20 FE em um servi
 | Área | Escolha |
 |---|---|
 | Backend | Node.js, TypeScript e Express |
-| Frontend | React e TypeScript |
+| Frontend | React, TypeScript e Vite |
 | Pacotes | npm |
+| Estrutura | Monorepo com npm workspaces |
+| Contratos | Zod 4 em `packages/contracts` |
 | Banco | SQLite pelo `node:sqlite` |
 | ORM | Drizzle ORM |
 | Testes | Vitest, Supertest e React Testing Library |
@@ -89,6 +91,9 @@ Qualquer exposição do servidor de IA à rede exige autenticação e CORS restr
 .
 ├── AGENTS.md
 ├── README.md
+├── apps/
+│   ├── server/
+│   └── web/
 ├── docs/
 │   ├── ARCHITECTURE.md
 │   ├── CURRENT_STATE.md
@@ -96,12 +101,48 @@ Qualquer exposição do servidor de IA à rede exige autenticação e CORS restr
 │   ├── PROJECT_RULES.md
 │   ├── PROJECT_VISION.md
 │   └── ROADMAP.md
-└── experiments/
-    ├── qwen-runtime/
-    └── sqlite-driver/
+├── experiments/
+│   ├── qwen-runtime/
+│   └── sqlite-driver/
+└── packages/
+    └── contracts/
 ```
 
 As pastas em `experiments/` preservam as provas validadas. Elas são referências técnicas e não representam a estrutura definitiva da aplicação.
+
+## Desenvolvimento
+
+Instale e valide todo o monorepo a partir da raiz:
+
+```bash
+npm ci
+npm run typecheck
+npm test
+npm run build
+```
+
+Para desenvolvimento, use dois terminais:
+
+```bash
+npm run dev:server
+```
+
+```bash
+npm run dev:web
+```
+
+Por padrão, a API usa `http://127.0.0.1:3000`, o Vite usa `http://127.0.0.1:5173` e encaminha `/health` para o backend. Copie `apps/server/.env.example` para `.env` somente quando precisar substituir as configurações; segredos nunca devem ser versionados.
+
+Acesse a interface pelo endereço exibido pelo Vite. Não abra `apps/web/index.html` diretamente, pois os módulos do frontend dependem do servidor de desenvolvimento ou do build.
+
+Para um ensaio autorizado na rede local, depois do build dos contratos, use:
+
+```bash
+HOST=0.0.0.0 npm run dev -w @projeto-home/server
+npm run dev:web -- --host 0.0.0.0
+```
+
+Não encaminhe essas portas para a internet.
 
 ## Executando as provas
 
@@ -140,4 +181,4 @@ O modelo GGUF não é versionado no repositório. Consulte as instruções, hash
 
 ## Próximo passo
 
-Definir a estrutura do repositório, a ferramenta de build do frontend e a biblioteca de validação de esquemas. Depois, iniciar a primeira entrega vertical da Etapa 1: backend com health check e `requestId`, frontend com status do servidor e SQLite configurado por Drizzle.
+Executar `npm ci`, tipagem, testes, build e o fluxo `/health` no Termux; depois confirmar a dashboard online e offline a partir de outro dispositivo da rede local.

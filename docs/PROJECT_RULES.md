@@ -8,9 +8,11 @@ As regras desta seção são obrigatórias até que uma decisão explícita e do
 
 - Node.js.
 - npm como gerenciador de pacotes.
+- npm workspaces como estrutura do monorepo, inicialmente com `packages/contracts`, `apps/server` e `apps/web`.
 - TypeScript.
 - Express no backend.
-- React no frontend.
+- React no frontend, construído com Vite e `@vitejs/plugin-react`.
+- Zod 4 para validação de ambiente, HTTP, ferramentas e mensagens compartilhadas.
 - SQLite com o driver nativo `node:sqlite` como banco principal inicial.
 - Drizzle ORM, por seu adaptador `node-sqlite`, para schema, consultas e migrações.
 - Vitest como runner de testes.
@@ -152,7 +154,6 @@ Ao finalizar trabalho material, atualizar `CURRENT_STATE.md`. Alterações arqui
 
 Enquanto não forem decididas, não tratá-las como regra:
 
-- Vite ou outra ferramenta de build do frontend;
 - formato e armazenamento definitivo dos logs;
 - autenticação final da dashboard;
 - solução de acesso remoto.

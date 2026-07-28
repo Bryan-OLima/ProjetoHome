@@ -2,11 +2,11 @@
 
 **Atualizado em:** 2026-07-28  
 **Fase atual:** Etapa 1 — Preparar ambiente e esqueleto  
-**Estado geral:** fundação concluída e instruções operacionais definidas; aplicação principal ainda não iniciada
+**Estado geral:** primeira entrega vertical implementada e validada localmente; validação no S20 FE pendente
 
 ## Objetivo da fase atual
 
-Definir somente as escolhas necessárias ao esqueleto e iniciar a primeira entrega vertical da aplicação sem reabrir decisões já validadas.
+Validar no ambiente-alvo a primeira entrega vertical já implementada, sem ampliar o escopo da Etapa 1.
 
 ## Concluído
 
@@ -34,38 +34,45 @@ Definir somente as escolhas necessárias ao esqueleto e iniciar a primeira entre
 - `AGENTS.md` criado na raiz com ordem de leitura, fluxo de trabalho, restrições e critérios de validação.
 - `README.md` criado na raiz como porta de entrada, com resumo do projeto, stack, configuração, provas e navegação documental.
 - Repositório Git inicializado na branch `main` e `.gitignore` raiz configurado para preservar fontes reproduzíveis sem versionar dependências, segredos, bancos, modelos ou artefatos locais.
+- Monorepo com npm workspaces aprovado: `packages/contracts`, `apps/server` e `apps/web`.
+- Vite com `@vitejs/plugin-react` aprovado para o frontend.
+- Zod 4 aprovado para validação e contratos compartilhados; schemas Drizzle permanecem exclusivos do backend.
+- Workspaces principais criados com lockfile único: `packages/contracts`, `apps/server` e `apps/web`.
+- Contratos Zod de health e erro implementados e compartilhados entre servidor e frontend.
+- Backend Express implementado com configuração validada, `requestId`, envelope seguro de erro, `GET /health` e SQLite/Drizzle com os pragmas aprovados.
+- Frontend React/Vite implementado com cartão de estado para carregamento, servidor online e indisponibilidade.
+- Validação local aprovada: typecheck dos três workspaces, sete testes, build de produção e smoke test HTTP do servidor compilado.
+- Árvore npm auditada sem vulnerabilidades conhecidas e sem conflitos de dependência.
 
 ## Em andamento
 
-- Confirmação das decisões ainda necessárias ao esqueleto: estrutura do repositório, build do frontend e validação de esquemas.
+- Repetição de `npm ci`, typecheck, sete testes e build no S20 FE.
+- Validação do acesso pela rede local e dos estados online e offline da dashboard.
 
 ## Próximo passo recomendado
 
-Escolher a estrutura do repositório, a ferramenta de build do frontend e a biblioteca de validação de esquemas. Em seguida, iniciar a primeira entrega vertical da **Etapa 1 — Preparar ambiente e esqueleto**, descrita em `IMPLEMENTATION_MAP.md`.
+Transferir ou atualizar o repositório no S20 FE, executar a validação completa do monorepo e testar a dashboard a partir de outro dispositivo da rede.
 
-## Primeira entrega de código planejada
+## Primeira entrega de código implementada
 
-- Inicializar backend Node.js, TypeScript e Express.
-- Inicializar frontend React e TypeScript.
-- Configurar npm, Drizzle e SQLite em WAL.
-- Criar `GET /health` com status, versão, uptime e `requestId`.
-- Criar cartão de status no frontend.
-- Validar acesso pela rede local e comportamento offline.
+- Backend Node.js, TypeScript e Express inicializado.
+- Frontend React, TypeScript e Vite inicializado.
+- npm workspaces, Drizzle e SQLite em WAL configurados.
+- `GET /health` criado com status, versão, uptime, banco, timestamp e `requestId`.
+- Cartão de status criado com estados de carregamento, online e offline.
+- Acesso pela rede local e comportamento offline ainda dependem do ensaio no aparelho.
 
 ## Decisões pendentes antes ou durante a Etapa 1
 
 | Decisão | Estado | Observação |
 |---|---|---|
-| Estrutura do repositório | Pendente | Avaliar monorepo com frontend e backend. |
-| Build do frontend | Pendente | Vite é uma possibilidade, ainda não uma decisão. |
-| Validação de esquemas | Pendente | Necessária para API, ferramentas e WebSocket. |
 | Armazenamento dos logs | Pendente | Separar arquivos operacionais de auditoria consultável. |
 | Autenticação da dashboard | Pendente | Necessária antes de dados sensíveis. |
 | Processo em segundo plano | Pendente | Investigar comportamento do Android/Termux. |
 
 ## Bloqueios atuais
 
-Nenhum bloqueio técnico conhecido. A implementação depende apenas das três escolhas diretamente necessárias ao esqueleto, registradas acima.
+Nenhum bloqueio técnico conhecido.
 
 ## Não iniciar ainda
 

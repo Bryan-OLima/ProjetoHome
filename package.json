@@ -1,0 +1,25 @@
+{
+  "name": "projeto-home",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "npm@11.18.0",
+  "workspaces": [
+    "packages/contracts",
+    "apps/server",
+    "apps/web"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "dev:server": "npm run build -w @projeto-home/contracts && npm run dev -w @projeto-home/server",
+    "dev:web": "npm run build -w @projeto-home/contracts && npm run dev -w @projeto-home/web --",
+    "pretest": "npm run build -w @projeto-home/contracts",
+    "test": "npm run test --workspaces --if-present",
+    "pretypecheck": "npm run build -w @projeto-home/contracts",
+    "typecheck": "npm run typecheck --workspaces --if-present"
+  },
+  "engines": {
+    "node": ">=24.0.0",
+    "npm": ">=11.0.0"
+  }
+}
