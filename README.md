@@ -2,7 +2,7 @@
 
 Plataforma pessoal e local para transformar um Samsung Galaxy S20 FE em um servidor doméstico. O projeto reunirá dashboard, monitoramento, armazenamento, automações, integrações e um assistente com IA local, preservando privacidade e controle do usuário.
 
-> **Estado atual:** Etapa 2 em andamento. Logging operacional, auditoria SQLite e migrations foram validados no S20 FE. Consulte o [estado operacional](./docs/CURRENT_STATE.md) antes de implementar.
+> **Estado atual:** Etapa 2 em andamento. Logging, auditoria, retenção e consulta de eventos persistidos foram validados no S20 FE; a consulta de logs operacionais está pronta para validação no aparelho. Consulte o [estado operacional](./docs/CURRENT_STATE.md) antes de implementar.
 
 ## Objetivos
 
@@ -48,6 +48,7 @@ As versões validadas na prova do banco foram `drizzle-orm@1.0.0-rc.4` e `drizzl
 - Logs operacionais ficam em `var/log/operational.jsonl`, com rotação de 5 MiB e retenção de até sete arquivos por padrão.
 - Ações sensíveis podem ser registradas em `audit_events`; eventos de nível `error` são mantidos em `error_events` no SQLite.
 - `GET /api/observability/events` consulta eventos persistidos com filtros tipados, paginação por cursor e resposta sanitizada.
+- `GET /api/observability/operational-logs` consulta os arquivos JSONL rotativos mais recentes com filtros tipados e leitura limitada, sem carregar os arquivos inteiros em memória.
 - Senhas, tokens, segredos, cookies, sessões e conteúdo privado são removidos antes do registro.
 - As migrations são aplicadas automaticamente ao iniciar o backend. Um erro na migration impede a inicialização com schema parcial.
 
@@ -64,6 +65,7 @@ Copie `apps/server/.env.example` para `apps/server/.env` somente quando precisar
 | `LOG_DIRECTORY` | `./var/log` | Diretório dos logs operacionais JSONL. |
 | `LOG_MAX_BYTES` | `5242880` | Tamanho máximo do arquivo JSONL ativo antes da rotação. |
 | `LOG_MAX_FILES` | `7` | Quantidade máxima de arquivos JSONL, incluindo o ativo. |
+| `OPERATIONAL_LOG_QUERY_MAX_BYTES` | `2097152` | Máximo de bytes lidos por consulta aos logs operacionais. |
 | `AUDIT_RETENTION_DAYS` | `365` | Retenção dos eventos de auditoria no SQLite. |
 | `ERROR_RETENTION_DAYS` | `90` | Retenção dos eventos de erro no SQLite. |
 | `EVENT_RETENTION_BATCH_SIZE` | `500` | Máximo de eventos removidos de cada tabela por inicialização. |
@@ -90,6 +92,14 @@ GET /api/observability/events
 Filtros opcionais: `kind` (`audit` ou `error`), `from`, `to`, `service`, `action`, `correlationId`, `cursor` e `limit` (1 a 100; padrão 50). `service` só pode ser usado para eventos de erro. A resposta possui `items` e, quando houver próxima página, `nextCursor`.
 
 A retenção é aplicada na inicialização em lotes curtos. Auditorias removidas após o prazo padrão de 365 dias e erros após 90 dias geram um evento de auditoria do sistema com as quantidades removidas.
+
+### Consulta de logs operacionais
+
+```text
+GET /api/observability/operational-logs
+```
+
+Filtros opcionais: `from`, `to`, `level` (`debug`, `info`, `warn` ou `error`), `service`, `action`, `correlationId` e `limit` (1 a 100; padrão 50). A resposta possui `items` em ordem do mais recente para o mais antigo e `truncated`. Quando `truncated` é `true`, há eventos mais antigos ou resultados adicionais fora do limite de leitura; não há cursor porque a rotação pode alterar os arquivos entre consultas.
 
 ### IA local
 
@@ -119,6 +129,7 @@ Qualquer exposição do servidor de IA à rede exige autenticação e CORS restr
 - Migrations aplicadas com as tabelas `audit_events` e `error_events`.
 - `PRAGMA integrity_check` retornou `ok`.
 - Uma requisição de health foi correlacionada ao evento JSONL pelo mesmo `requestId`.
+- A consulta de eventos persistidos respondeu corretamente, inclusive com rejeição segura de filtros incompatíveis.
 
 ### IA
 
@@ -217,7 +228,7 @@ Após trazer a versão com logging e auditoria para o aparelho, execute o ensaio
 bash scripts/termux/validate-stage-2.sh
 ```
 
-Ele usa banco, logs e porta temporários em `var/validation/`, sem tocar no banco ativo, e valida dependências, tipos, testes, build, migrations, integridade do SQLite e correlação de uma requisição no JSONL.
+Ele usa banco, logs e porta temporários em `var/validation/`, sem tocar no banco ativo, e valida dependências, tipos, testes, build, migrations, integridade do SQLite, correlação de uma requisição no JSONL e a resposta da consulta de logs operacionais.
 
 Para iniciar após reinicializações, instale o complemento Termux:Boot, mantenha o repositório em `~/ProjetoHome` e execute uma vez:
 
@@ -267,4 +278,4 @@ O modelo GGUF não é versionado no repositório. Consulte as instruções, hash
 
 ## Próximo passo
 
-Implementar a API tipada de consulta aos eventos persistidos, com filtros e política inicial de retenção no SQLite.
+Validar a consulta de logs operacionais no S20 FE. Em seguida, criar a página `/logs` no frontend para consumir os eventos persistidos e os logs operacionais, com filtros e estados de carregamento, vazio, erro e indisponibilidade.

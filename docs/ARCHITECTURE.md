@@ -73,6 +73,8 @@ Eventos de auditoria e logs de nível `error` também seguem para tabelas separa
 
 As consultas persistidas seguem uma fronteira explícita: a rota Express valida a entrada com Zod e chama o caso de uso `ListPersistedEvents`; ele depende apenas da porta `PersistedEventRepository`; o adaptador `DrizzleEventRepository` traduz filtros, cursor e retenção para SQLite. A porta não expõe SQL, Drizzle ou CRUD genérico, permitindo substituir o adaptador sem alterar contratos HTTP ou casos de uso. Entidades internas usam `Date`; DTOs públicos usam timestamps ISO e união discriminada entre `audit` e `error`.
 
+A leitura dos logs operacionais usa a porta independente `OperationalLogReader` e o adaptador `JsonlOperationalLogReader`. Ele percorre somente os nomes de arquivos rotativos conhecidos, do ativo aos arquivos mais antigos, em blocos reversos e com teto configurável de bytes. Cada linha é novamente sanitizada e validada antes da resposta. A rota retorna os registros mais recentes e informa `truncated` quando o limite de resultados ou de leitura impede afirmar que a busca está completa. Ela não usa cursor, pois uma rotação pode tornar offsets de arquivo inconsistentes entre duas requisições.
+
 ### SQLite
 
 Armazena configurações não secretas, metadados, estados, histórico necessário e referências de auditoria. O backend é o único proprietário do arquivo e usa Drizzle ORM com o driver nativo `node:sqlite` como camada de acesso. Tokens e segredos exigem armazenamento protegido e não devem ser tratados como dados comuns.

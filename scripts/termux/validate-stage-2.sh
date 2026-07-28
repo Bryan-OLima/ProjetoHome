@@ -49,6 +49,18 @@ fi
 
 REQUEST_ID="$(node -e 'const fs = require("node:fs"); const health = JSON.parse(fs.readFileSync(process.argv[1], "utf8")); if (!health.requestId) process.exit(1); process.stdout.write(health.requestId);' "$HEALTH_FILE")"
 
+OPERATIONAL_LOGS_FILE="$VALIDATION_ROOT/operational-logs.json"
+node -e 'fetch(process.argv[1]).then(async (response) => { if (!response.ok) process.exit(1); process.stdout.write(await response.text()); }).catch(() => process.exit(1));' "http://127.0.0.1:$PORT/api/observability/operational-logs?limit=1" >"$OPERATIONAL_LOGS_FILE"
+
+node - "$OPERATIONAL_LOGS_FILE" <<'NODE'
+const { readFileSync } = require("node:fs");
+
+const payload = JSON.parse(readFileSync(process.argv[2], "utf8"));
+if (!Array.isArray(payload.items) || typeof payload.truncated !== "boolean") {
+  throw new Error("invalid_operational_log_query_response");
+}
+NODE
+
 node - "$DATABASE_PATH" "$LOG_DIRECTORY/operational.jsonl" "$REQUEST_ID" <<'NODE'
 const { DatabaseSync } = require("node:sqlite");
 const { existsSync, readFileSync } = require("node:fs");

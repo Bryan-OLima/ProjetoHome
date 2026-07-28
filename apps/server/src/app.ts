@@ -11,6 +11,9 @@ import type { DatabaseHandle } from "./db/database.js";
 import { DrizzleEventRepository } from "./observability/drizzle-event-repository.js";
 import type { PersistedEventRepository } from "./observability/event-repository.js";
 import { createListPersistedEvents } from "./observability/list-persisted-events.js";
+import { createListOperationalLogs } from "./observability/list-operational-logs.js";
+import { JsonlOperationalLogReader } from "./observability/jsonl-operational-log-reader.js";
+import type { OperationalLogReader } from "./observability/operational-log-reader.js";
 import { createObservabilityRouter } from "./observability/routes.js";
 import { HttpError } from "./http-error.js";
 import {
@@ -27,6 +30,7 @@ export interface AppOptions {
   uptime?: () => number;
   logger?: OperationalLogger;
   eventRepository?: PersistedEventRepository;
+  operationalLogReader?: OperationalLogReader;
 }
 
 export function createApp(options: AppOptions) {
@@ -36,8 +40,16 @@ export function createApp(options: AppOptions) {
   const logger = options.logger ?? noopOperationalLogger;
   const eventRepository =
     options.eventRepository ?? new DrizzleEventRepository(options.database);
+  const operationalLogReader =
+    options.operationalLogReader ??
+    new JsonlOperationalLogReader({
+      directory: "./var/log",
+      maxFiles: 7,
+      maxScanBytes: 2 * 1024 * 1024,
+    });
   const observabilityRouter = createObservabilityRouter({
     listPersistedEvents: createListPersistedEvents({ repository: eventRepository }),
+    listOperationalLogs: createListOperationalLogs({ reader: operationalLogReader }),
   });
 
   app.disable("x-powered-by");

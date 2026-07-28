@@ -1,6 +1,7 @@
 import {
   ErrorResponseSchema,
   HealthResponseSchema,
+  ListOperationalLogsResponseSchema,
   ListPersistedEventsResponseSchema,
   OperationalLogEventSchema,
 } from "@projeto-home/contracts";
@@ -9,6 +10,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { createApp } from "../src/app.js";
 import type { OperationalLogInput } from "../src/logging/operational-logger.js";
 import { DrizzleEventRepository } from "../src/observability/drizzle-event-repository.js";
+import type { OperationalLogReader } from "../src/observability/operational-log-reader.js";
 import { createTestDatabase, createTestWebDist } from "./helpers.js";
 
 const cleanups: Array<() => void> = [];
@@ -144,6 +146,57 @@ describe("GET /health", () => {
 
     const response = await request(app)
       .get("/api/observability/events?cursor=not-a-cursor")
+      .expect(400);
+
+    expect(ErrorResponseSchema.parse(response.body).error.code).toBe(
+      "invalid_request",
+    );
+  });
+
+  it("returns validated operational logs with typed query filters", async () => {
+    const testDatabase = createTestDatabase("operational-log-route");
+    cleanups.push(testDatabase.cleanup);
+    const reader: OperationalLogReader = {
+      listLogs(filters) {
+        expect(filters).toMatchObject({ level: "warn", limit: 1 });
+        return {
+          items: [
+            OperationalLogEventSchema.parse({
+              timestamp: "2026-07-28T12:00:00.000Z",
+              level: "warn",
+              service: "http",
+              action: "http.request",
+              outcome: "failure",
+            }),
+          ],
+          truncated: false,
+        };
+      },
+    };
+    const app = createApp({
+      database: testDatabase.database,
+      version: "test",
+      operationalLogReader: reader,
+    });
+
+    const response = await request(app)
+      .get("/api/observability/operational-logs?level=warn&limit=1")
+      .expect(200);
+    const payload = ListOperationalLogsResponseSchema.parse(response.body);
+
+    expect(payload).toMatchObject({
+      truncated: false,
+      items: [expect.objectContaining({ level: "warn" })],
+    });
+  });
+
+  it("rejects invalid operational log filters with a safe client error", async () => {
+    const testDatabase = createTestDatabase("invalid-operational-log-query");
+    cleanups.push(testDatabase.cleanup);
+    const app = createApp({ database: testDatabase.database, version: "test" });
+
+    const response = await request(app)
+      .get("/api/observability/operational-logs?limit=101")
       .expect(400);
 
     expect(ErrorResponseSchema.parse(response.body).error.code).toBe(

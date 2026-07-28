@@ -1,6 +1,10 @@
 import {
+  ListOperationalLogsQuerySchema,
+  ListOperationalLogsResponseSchema,
   ListPersistedEventsQuerySchema,
   ListPersistedEventsResponseSchema,
+  type ListOperationalLogsQueryInput,
+  type ListOperationalLogsResponse,
   type ListPersistedEventsQueryInput,
   type ListPersistedEventsResponse,
 } from "@projeto-home/contracts";
@@ -10,6 +14,7 @@ import {
   InvalidEventCursorError,
   type ListPersistedEvents,
 } from "./list-persisted-events.js";
+import type { ListOperationalLogs } from "./list-operational-logs.js";
 
 export type NoRouteParams = Record<string, never>;
 export type NoRequestBody = never;
@@ -25,9 +30,21 @@ type ListEventsRequest = Request<
   AppLocals
 >;
 type ListEventsResponse = Response<ListPersistedEventsResponse, AppLocals>;
+type ListOperationalLogsRequest = Request<
+  NoRouteParams,
+  ListOperationalLogsResponse,
+  NoRequestBody,
+  ListOperationalLogsQueryInput,
+  AppLocals
+>;
+type ListOperationalLogsResponseType = Response<
+  ListOperationalLogsResponse,
+  AppLocals
+>;
 
 export function createObservabilityRouter(dependencies: {
   listPersistedEvents: ListPersistedEvents;
+  listOperationalLogs: ListOperationalLogs;
 }) {
   const router = Router();
 
@@ -63,6 +80,34 @@ export function createObservabilityRouter(dependencies: {
       throw error;
     }
   });
+
+  router.get<
+    NoRouteParams,
+    ListOperationalLogsResponse,
+    NoRequestBody,
+    ListOperationalLogsQueryInput,
+    AppLocals
+  >(
+    "/operational-logs",
+    (
+      request: ListOperationalLogsRequest,
+      response: ListOperationalLogsResponseType,
+    ) => {
+      const parsedQuery = ListOperationalLogsQuerySchema.safeParse(request.query);
+      if (!parsedQuery.success) {
+        throw new HttpError(
+          400,
+          "invalid_request",
+          "Request parameters are invalid.",
+        );
+      }
+
+      const payload = ListOperationalLogsResponseSchema.parse(
+        dependencies.listOperationalLogs.execute(parsedQuery.data),
+      );
+      response.status(200).json(payload);
+    },
+  );
 
   return router;
 }

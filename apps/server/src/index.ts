@@ -9,6 +9,7 @@ import {
 } from "./logging/operational-logger.js";
 import { applyEventRetention } from "./observability/apply-event-retention.js";
 import { DrizzleEventRepository } from "./observability/drizzle-event-repository.js";
+import { JsonlOperationalLogReader } from "./observability/jsonl-operational-log-reader.js";
 
 const environmentFile = fileURLToPath(new URL("../.env", import.meta.url));
 if (existsSync(environmentFile)) {
@@ -25,6 +26,11 @@ const logWriter = new RotatingJsonlWriter({
   directory: config.logDirectory,
   maxBytes: config.logMaxBytes,
   maxFiles: config.logMaxFiles,
+});
+const operationalLogReader = new JsonlOperationalLogReader({
+  directory: config.logDirectory,
+  maxFiles: config.logMaxFiles,
+  maxScanBytes: config.operationalLogQueryMaxBytes,
 });
 const logger = createOperationalLogger({
   writer: logWriter,
@@ -103,6 +109,7 @@ const app = createApp({
   webDistPath,
   logger,
   eventRepository,
+  operationalLogReader,
 });
 
 const server = app.listen(config.port, config.host, () => {

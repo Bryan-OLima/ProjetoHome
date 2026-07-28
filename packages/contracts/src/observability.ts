@@ -1,5 +1,9 @@
 import { z } from "zod";
-import { LogOutcomeSchema } from "./logging.js";
+import {
+  LogLevelSchema,
+  LogOutcomeSchema,
+  OperationalLogEventSchema,
+} from "./logging.js";
 
 const IdentifierSchema = z
   .string()
@@ -92,6 +96,39 @@ export const ListPersistedEventsResponseSchema = z
   })
   .strict();
 
+export const ListOperationalLogsQuerySchema = z
+  .object({
+    from: EventTimestampSchema.optional(),
+    to: EventTimestampSchema.optional(),
+    level: LogLevelSchema.optional(),
+    service: IdentifierSchema.optional(),
+    action: IdentifierSchema.optional(),
+    correlationId: z.string().uuid().optional(),
+    limit: z
+      .string()
+      .regex(/^\d+$/)
+      .transform((value) => Number(value))
+      .pipe(z.number().int().min(1).max(100))
+      .default(50),
+  })
+  .strict()
+  .superRefine((query, context) => {
+    if (query.from && query.to && query.from > query.to) {
+      context.addIssue({
+        code: "custom",
+        path: ["to"],
+        message: "to must not be earlier than from",
+      });
+    }
+  });
+
+export const ListOperationalLogsResponseSchema = z
+  .object({
+    items: z.array(OperationalLogEventSchema),
+    truncated: z.boolean(),
+  })
+  .strict();
+
 export type PersistedEventKind = z.infer<typeof PersistedEventKindSchema>;
 export type AuditEventDto = z.infer<typeof AuditEventDtoSchema>;
 export type ErrorEventDto = z.infer<typeof ErrorEventDtoSchema>;
@@ -104,4 +141,13 @@ export type ListPersistedEventsQuery = z.output<
 >;
 export type ListPersistedEventsResponse = z.infer<
   typeof ListPersistedEventsResponseSchema
+>;
+export type ListOperationalLogsQueryInput = z.input<
+  typeof ListOperationalLogsQuerySchema
+>;
+export type ListOperationalLogsQuery = z.output<
+  typeof ListOperationalLogsQuerySchema
+>;
+export type ListOperationalLogsResponse = z.infer<
+  typeof ListOperationalLogsResponseSchema
 >;

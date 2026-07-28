@@ -10,6 +10,12 @@ const ConfigSchema = z.object({
   LOG_DIRECTORY: z.string().min(1).default("./var/log"),
   LOG_MAX_BYTES: z.coerce.number().int().min(1).default(5 * 1024 * 1024),
   LOG_MAX_FILES: z.coerce.number().int().min(1).max(30).default(7),
+  OPERATIONAL_LOG_QUERY_MAX_BYTES: z.coerce
+    .number()
+    .int()
+    .min(4 * 1024)
+    .max(10 * 1024 * 1024)
+    .default(2 * 1024 * 1024),
   AUDIT_RETENTION_DAYS: z.coerce.number().int().min(1).max(3_650).default(365),
   ERROR_RETENTION_DAYS: z.coerce.number().int().min(1).max(3_650).default(90),
   EVENT_RETENTION_BATCH_SIZE: z.coerce.number().int().min(1).max(5_000).default(500),
@@ -23,6 +29,7 @@ export interface AppConfig {
   logDirectory: string;
   logMaxBytes: number;
   logMaxFiles: number;
+  operationalLogQueryMaxBytes: number;
   auditRetentionDays: number;
   errorRetentionDays: number;
   eventRetentionBatchSize: number;
@@ -41,6 +48,7 @@ export function loadConfig(
     logDirectory: parsed.LOG_DIRECTORY,
     logMaxBytes: parsed.LOG_MAX_BYTES,
     logMaxFiles: parsed.LOG_MAX_FILES,
+    operationalLogQueryMaxBytes: parsed.OPERATIONAL_LOG_QUERY_MAX_BYTES,
     auditRetentionDays: parsed.AUDIT_RETENTION_DAYS,
     errorRetentionDays: parsed.ERROR_RETENTION_DAYS,
     eventRetentionBatchSize: parsed.EVENT_RETENTION_BATCH_SIZE,
