@@ -63,6 +63,7 @@ Implementar logs operacionais estruturados e auditoria mínima sem registrar dad
 - Validação local do segundo incremento da Etapa 2 aprovada: typecheck dos três workspaces e 19 testes, cobrindo migration, auditoria sanitizada, seleção de erros relevantes e espera por contenção em WAL.
 - Validação da Etapa 2 aprovada no S20 FE em 2026-07-28: testes unitários, build de produção Vite, migrations das tabelas `audit_events` e `error_events`, `PRAGMA integrity_check = ok` e correlação do `requestId` no JSONL. Evidências locais: `var/validation/stage-2-20260728T185758Z/`.
 - Convenção obrigatória de commits registrada: categoria entre colchetes, mensagem curta em inglês e categoria principal única.
+- README consolidado como resumo e setup da aplicação atual, incluindo logging, auditoria, migrations e variáveis de operação.
 
 ## Em andamento
 

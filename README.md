@@ -40,7 +40,29 @@ Plataforma pessoal e local para transformar um Samsung Galaxy S20 FE em um servi
 
 As versões validadas na prova do banco foram `drizzle-orm@1.0.0-rc.4` e `drizzle-kit@1.0.0-rc.4`. Atualizações devem repetir os testes de migration, concorrência e recuperação.
 
+## O que já funciona
+
+- `GET /health` retorna o estado do servidor, banco, versão, uptime e `requestId`.
+- O frontend compilado é servido pelo Express na mesma porta da API em produção.
+- Cada resposta HTTP gera um log operacional JSONL com nível, ação, resultado, duração e o mesmo `requestId` retornado ao cliente.
+- Logs operacionais ficam em `var/log/operational.jsonl`, com rotação de 5 MiB e retenção de até sete arquivos por padrão.
+- Ações sensíveis podem ser registradas em `audit_events`; eventos de nível `error` são mantidos em `error_events` no SQLite.
+- Senhas, tokens, segredos, cookies, sessões e conteúdo privado são removidos antes do registro.
+- As migrations são aplicadas automaticamente ao iniciar o backend. Um erro na migration impede a inicialização com schema parcial.
+
 ## Configurações essenciais
+
+Copie `apps/server/.env.example` para `apps/server/.env` somente quando precisar substituir os valores padrão. Esse arquivo não deve ser versionado.
+
+| Variável | Padrão | Finalidade |
+|---|---:|---|
+| `NODE_ENV` | `development` | Ambiente de execução (`development`, `test` ou `production`). |
+| `HOST` | `127.0.0.1` | Interface onde o backend escuta. Use `0.0.0.0` apenas na rede local autorizada. |
+| `PORT` | `3000` | Porta do backend e do frontend compilado. |
+| `DATABASE_PATH` | `./data/projeto-home.sqlite` | Caminho do banco SQLite ativo no armazenamento interno. |
+| `LOG_DIRECTORY` | `./var/log` | Diretório dos logs operacionais JSONL. |
+| `LOG_MAX_BYTES` | `5242880` | Tamanho máximo do arquivo JSONL ativo antes da rotação. |
+| `LOG_MAX_FILES` | `7` | Quantidade máxima de arquivos JSONL, incluindo o ativo. |
 
 ### SQLite
 
@@ -126,6 +148,12 @@ npm ci
 npm run typecheck
 npm test
 npm run build
+```
+
+As migrations não exigem um comando separado: o backend as aplica ao abrir o SQLite. Para iniciar apenas a aplicação compilada localmente:
+
+```bash
+npm start
 ```
 
 Para desenvolvimento, use dois terminais:
