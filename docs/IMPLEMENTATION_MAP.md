@@ -38,6 +38,8 @@ Este documento define a ordem operacional de construção. Cada etapa deve resul
 
 ## Etapa 1 — Preparar ambiente e esqueleto
 
+**Estado:** concluída em 2026-07-28.
+
 ### Ferramentas definidas
 
 - npm como gerenciador de pacotes.
@@ -84,6 +86,13 @@ Este documento define a ordem operacional de construção. Cada etapa deve resul
 
 - A dashboard mostra corretamente online e offline em outro dispositivo.
 - Cada requisição possui identificador rastreável.
+
+### Evidências de conclusão
+
+- `npm ci`, typecheck, oito testes e build executados no S20 FE.
+- Dashboard servida pelo Express e acessada pela rede local.
+- Supervisor reiniciou o processo Node.js após encerramento forçado.
+- Termux:Boot iniciou o supervisor após reinicialização do aparelho.
 
 ## Etapa 2 — Logging service e auditoria mínima
 

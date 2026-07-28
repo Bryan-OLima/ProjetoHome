@@ -1,12 +1,12 @@
 # Estado Atual do Projeto
 
 **Atualizado em:** 2026-07-28  
-**Fase atual:** Etapa 1 — Preparar ambiente e esqueleto  
-**Estado geral:** primeira entrega vertical e operação local implementadas e validadas; validação no S20 FE pendente
+**Fase atual:** Etapa 2 — Logging service e auditoria mínima
+**Estado geral:** Etapa 1 concluída e validada no S20 FE; Etapa 2 ainda não iniciada
 
 ## Objetivo da fase atual
 
-Validar no ambiente-alvo a primeira entrega vertical já implementada, sem ampliar o escopo da Etapa 1.
+Implementar logs operacionais estruturados e auditoria mínima sem registrar dados sensíveis.
 
 ## Concluído
 
@@ -47,16 +47,15 @@ Validar no ambiente-alvo a primeira entrega vertical já implementada, sem ampli
 - Scripts de supervisor, parada segura e Termux:Boot criados para a operação no aparelho.
 - Estratégia de logs aprovada: JSONL rotativo para operação e SQLite para auditoria, erros relevantes e histórico consultável.
 - Estratégia de autenticação aprovada: conta administradora local, Argon2id, sessões revogáveis e HTTPS antes de dados sensíveis.
+- Etapa 1 validada no S20 FE: `npm ci`, typecheck, testes e build concluídos; frontend servido pelo Express; recuperação após encerramento forçado; acesso pela rede local; e inicialização automática pelo Termux:Boot confirmados.
 
 ## Em andamento
 
-- Repetição de `npm ci`, typecheck, oito testes e build no S20 FE.
-- Validação do acesso pela rede local, dos estados online e offline da dashboard e do frontend servido pelo Express.
-- Validação do Termux:Boot, supervisor, wake-lock e recuperação após queda.
+Nenhum item da Etapa 2 iniciado.
 
 ## Próximo passo recomendado
 
-Transferir ou atualizar o repositório no S20 FE, executar a validação completa do monorepo e testar a dashboard a partir de outro dispositivo da rede.
+Implementar o contrato de evento de log estruturado, a sanitização central e o armazenamento operacional em JSONL rotativo.
 
 ## Primeira entrega de código implementada
 
@@ -65,7 +64,7 @@ Transferir ou atualizar o repositório no S20 FE, executar a validação complet
 - npm workspaces, Drizzle e SQLite em WAL configurados.
 - `GET /health` criado com status, versão, uptime, banco, timestamp e `requestId`.
 - Cartão de status criado com estados de carregamento, online e offline.
-- Acesso pela rede local, comportamento offline e recuperação automática ainda dependem do ensaio no aparelho.
+- Acesso pela rede local, comportamento offline e recuperação automática foram validados no S20 FE.
 
 ## Decisões registradas para a Etapa 1
 
