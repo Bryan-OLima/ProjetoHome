@@ -96,6 +96,8 @@ Este documento define a ordem operacional de construção. Cada etapa deve resul
 
 ## Etapa 2 — Logging service e auditoria mínima
 
+**Estado:** concluída em 2026-07-28.
+
 ### Backend
 
 - Definir evento de log estruturado.
@@ -122,6 +124,12 @@ Este documento define a ordem operacional de construção. Cada etapa deve resul
 
 - Uma falha pode ser rastreada da requisição ao evento final.
 - Tokens, senhas, cookies e conteúdo privado não aparecem nos registros.
+
+### Evidências de conclusão
+
+- Logs JSONL rotativos, auditoria e erros relevantes no SQLite, retenção e consultas tipadas validados no S20 FE.
+- Página `/logs` validada no aparelho com filtros por data e nível operacional, detalhes sanitizados e ajuda contextual para os filtros técnicos.
+- Typecheck, 35 testes e build de produção aprovados; os estados de vazio, erro e indisponibilidade da interface possuem cobertura automatizada.
 
 ## Etapa 3 — Monitoramento do S20 FE e dashboard
 

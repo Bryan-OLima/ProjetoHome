@@ -2,7 +2,7 @@
 
 Plataforma pessoal e local para transformar um Samsung Galaxy S20 FE em um servidor doméstico. O projeto reunirá dashboard, monitoramento, armazenamento, automações, integrações e um assistente com IA local, preservando privacidade e controle do usuário.
 
-> **Estado atual:** Etapa 2 em andamento. Logging, auditoria, retenção e as consultas de eventos persistidos e logs operacionais foram validados no S20 FE. Consulte o [estado operacional](./docs/CURRENT_STATE.md) antes de implementar.
+> **Estado atual:** Etapa 2 concluída e validada no S20 FE. Logging, auditoria, retenção, consultas e página de logs estão operacionais. Consulte o [estado operacional](./docs/CURRENT_STATE.md) antes de implementar.
 
 ## Objetivos
 
@@ -133,6 +133,7 @@ Qualquer exposição do servidor de IA à rede exige autenticação e CORS restr
 - Uma requisição de health foi correlacionada ao evento JSONL pelo mesmo `requestId`.
 - A consulta de eventos persistidos respondeu corretamente, inclusive com rejeição segura de filtros incompatíveis.
 - A consulta de logs operacionais JSONL respondeu corretamente no ensaio isolado da Etapa 2.
+- A página `/logs`, os filtros de data e nível operacional e a ajuda contextual dos filtros técnicos foram validados no navegador do aparelho.
 
 ### IA
 
@@ -281,4 +282,4 @@ O modelo GGUF não é versionado no repositório. Consulte as instruções, hash
 
 ## Próximo passo
 
-Validar a página `/logs` no S20 FE; em seguida, encerrar a Etapa 2 e iniciar o planejamento da Etapa 3 — monitoramento do aparelho e dashboard.
+Planejar o primeiro incremento vertical da Etapa 3 — monitoramento do S20 FE e dashboard.

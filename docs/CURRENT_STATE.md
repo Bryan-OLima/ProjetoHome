@@ -1,8 +1,8 @@
 # Estado Atual do Projeto
 
 **Atualizado em:** 2026-07-28  
-**Fase atual:** Etapa 2 — Logging service e auditoria mínima
-**Estado geral:** Etapa 1 concluída e validada no S20 FE; quatro incrementos da Etapa 2 implementados e validados no S20 FE
+**Fase atual:** Etapa 2 — concluída em 2026-07-28
+**Estado geral:** Etapas 1 e 2 concluídas e validadas no S20 FE
 
 ## Objetivo da fase atual
 
@@ -80,14 +80,15 @@ Implementar logs operacionais estruturados e auditoria mínima sem registrar dad
 - Rota `/logs` entregue pelo Express em produção e proxy de desenvolvimento configurado para `/api`.
 - Validação local da página aprovada: typecheck dos três workspaces, 35 testes e build de produção, cobrindo sucesso, filtros, vazio, indisponibilidade, erro de API e entrega da rota estática.
 - Ajuda contextual acessível adicionada aos filtros técnicos de tipo persistido, serviço, ação e correlação, com as opções atuais de consulta.
+- Validação final da página `/logs` no S20 FE aprovada: carregamento normal, filtros de data e nível operacional e ajuda contextual confirmados no navegador. A indisponibilidade completa do processo resulta corretamente em recusa de conexão, pois o mesmo Express entrega frontend e API; o estado de indisponibilidade da interface permanece coberto pelos testes automatizados.
 
 ## Em andamento
 
-- Etapa 2 — logging service e auditoria mínima.
+- Nenhum incremento de código ativo.
 
 ## Próximo passo recomendado
 
-Validar a página `/logs` no S20 FE. Depois dessa evidência, encerrar a Etapa 2 e iniciar o planejamento da Etapa 3 — monitoramento do aparelho e dashboard.
+Planejar o primeiro incremento vertical da Etapa 3 — monitoramento do S20 FE e dashboard.
 
 ## Melhoria futura registrada
 
