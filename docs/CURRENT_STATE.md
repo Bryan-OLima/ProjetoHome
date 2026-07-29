@@ -1,12 +1,12 @@
 # Estado Atual do Projeto
 
 **Atualizado em:** 2026-07-28  
-**Fase atual:** Etapa 2 — concluída em 2026-07-28
-**Estado geral:** Etapas 1 e 2 concluídas e validadas no S20 FE
+**Fase atual:** Etapa 3 — Monitoramento do S20 FE e dashboard
+**Estado geral:** Etapas 1 e 2 concluídas e validadas no S20 FE; primeiro incremento da Etapa 3 validado localmente e pendente de ensaio no aparelho
 
 ## Objetivo da fase atual
 
-Implementar logs operacionais estruturados e auditoria mínima sem registrar dados sensíveis.
+Monitorar o S20 FE e apresentar as métricas essenciais no dashboard sem degradar o serviço.
 
 ## Concluído
 
@@ -81,18 +81,23 @@ Implementar logs operacionais estruturados e auditoria mínima sem registrar dad
 - Validação local da página aprovada: typecheck dos três workspaces, 35 testes e build de produção, cobrindo sucesso, filtros, vazio, indisponibilidade, erro de API e entrega da rota estática.
 - Ajuda contextual acessível adicionada aos filtros técnicos de tipo persistido, serviço, ação e correlação, com as opções atuais de consulta.
 - Validação final da página `/logs` no S20 FE aprovada: carregamento normal, filtros de data e nível operacional e ajuda contextual confirmados no navegador. A indisponibilidade completa do processo resulta corretamente em recusa de conexão, pois o mesmo Express entrega frontend e API; o estado de indisponibilidade da interface permanece coberto pelos testes automatizados.
+- Primeiro incremento da Etapa 3 implementado: contrato Zod e `GET /api/monitoring/metrics` para coleta sob demanda de uptime, memória, swap, armazenamento e temperaturas disponíveis do aparelho.
+- O coletor isola falhas por fonte e representa cada métrica numérica como disponível ou indisponível, preservando a resposta parcial.
+- Dashboard raiz ampliado com cartões de uptime, memória disponível, swap usada, armazenamento disponível, temperatura da CPU e temperatura da bateria, além de estados explícitos de carregamento, indisponibilidade e falha.
+- Validação local da Etapa 3 aprovada: typecheck dos três workspaces, 39 testes e build de produção.
 
 ## Em andamento
 
-- Nenhum incremento de código ativo.
+- Ensaio do primeiro incremento da Etapa 3 no S20 FE.
 
 ## Próximo passo recomendado
 
-Planejar o primeiro incremento vertical da Etapa 3 — monitoramento do S20 FE e dashboard.
+Atualizar o S20 FE e validar a rota de métricas e os cartões do dashboard.
 
 ## Melhoria futura registrada
 
 - Quando houver um catálogo confiável de serviços observados, evoluir o filtro de serviço da página `/logs` de texto livre para dropdown dinâmico. Essa melhoria não bloqueia a conclusão da Etapa 2.
+- Dados detalhados de bateria — percentual, estado de carga, saúde e corrente — ficam para futura implementação após decisão explícita de instalar e configurar o complemento Termux:API. A ausência desse complemento não bloqueia a temperatura térmica já exposta pelo Android nem as demais métricas.
 
 ## Primeira entrega de código implementada
 

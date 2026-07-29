@@ -79,6 +79,12 @@ As consultas persistidas seguem uma fronteira explícita: a rota Express valida 
 
 A leitura dos logs operacionais usa a porta independente `OperationalLogReader` e o adaptador `JsonlOperationalLogReader`. Ele percorre somente os nomes de arquivos rotativos conhecidos, do ativo aos arquivos mais antigos, em blocos reversos e com teto configurável de bytes. Cada linha é novamente sanitizada e validada antes da resposta. A rota retorna os registros mais recentes e informa `truncated` quando o limite de resultados ou de leitura impede afirmar que a busca está completa. Ela não usa cursor, pois uma rotação pode tornar offsets de arquivo inconsistentes entre duas requisições.
 
+### Monitoramento do aparelho
+
+O endpoint `GET /api/monitoring/metrics` coleta dados somente quando é chamado; não há processo residente nem histórico nesta primeira fatia. O coletor interno lê memória e swap pelo comando fixo `free -k`, capacidade do filesystem do processo e zonas térmicas legíveis de `/sys/class/thermal`. Nenhuma parte da requisição controla comandos ou caminhos. Cada medida é uma união discriminada de disponível ou indisponível, para que ausência de uma fonte não derrube a resposta inteira. O dashboard mostra uptime do processo, memória, swap, armazenamento e temperaturas com estados explícitos de carregamento, indisponibilidade de rede e falha da API.
+
+A temperatura da bateria é lida da zona térmica quando o Android a expõe. Percentual, estado de carga, saúde e corrente permanecem fora do escopo até uma decisão explícita de instalar e configurar o complemento Termux:API; esses dados não são necessários para a disponibilidade das demais métricas.
+
 ### SQLite
 
 Armazena configurações não secretas, metadados, estados, histórico necessário e referências de auditoria. O backend é o único proprietário do arquivo e usa Drizzle ORM com o driver nativo `node:sqlite` como camada de acesso. Tokens e segredos exigem armazenamento protegido e não devem ser tratados como dados comuns.

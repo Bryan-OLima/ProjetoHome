@@ -16,6 +16,8 @@ import { createListOperationalLogs } from "./observability/list-operational-logs
 import { JsonlOperationalLogReader } from "./observability/jsonl-operational-log-reader.js";
 import type { OperationalLogReader } from "./observability/operational-log-reader.js";
 import { createObservabilityRouter } from "./observability/routes.js";
+import { createMonitoringRouter } from "./monitoring/routes.js";
+import { createSystemMetricsCollector, type SystemMetricsCollector } from "./monitoring/system-metrics.js";
 import { HttpError } from "./http-error.js";
 import {
   noopOperationalLogger,
@@ -32,6 +34,7 @@ export interface AppOptions {
   logger?: OperationalLogger;
   eventRepository?: PersistedEventRepository;
   operationalLogReader?: OperationalLogReader;
+  systemMetricsCollector?: SystemMetricsCollector;
 }
 
 export function createApp(options: AppOptions) {
@@ -52,6 +55,7 @@ export function createApp(options: AppOptions) {
     listPersistedEvents: createListPersistedEvents({ repository: eventRepository }),
     listOperationalLogs: createListOperationalLogs({ reader: operationalLogReader }),
   });
+  const systemMetricsCollector = options.systemMetricsCollector ?? createSystemMetricsCollector({ uptime });
 
   app.disable("x-powered-by");
   app.use(requestContext);
@@ -91,6 +95,7 @@ export function createApp(options: AppOptions) {
   });
 
   app.use("/api/observability", observabilityRouter);
+  app.use("/api/monitoring", createMonitoringRouter({ collector: systemMetricsCollector }));
 
   if (options.webDistPath && existsSync(options.webDistPath)) {
     app.use(express.static(options.webDistPath));

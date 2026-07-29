@@ -33,3 +33,9 @@ export {
   type PersistedEventDto,
   type PersistedEventKind,
 } from "./observability.js";
+export {
+  NumericMetricSchema,
+  SystemMetricsResponseSchema,
+  type NumericMetric,
+  type SystemMetricsResponse,
+} from "./monitoring.js";

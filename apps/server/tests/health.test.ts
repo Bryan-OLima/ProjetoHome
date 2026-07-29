@@ -4,6 +4,7 @@ import {
   ListOperationalLogsResponseSchema,
   ListPersistedEventsResponseSchema,
   OperationalLogEventSchema,
+  SystemMetricsResponseSchema,
 } from "@projeto-home/contracts";
 import request from "supertest";
 import { afterEach, describe, expect, it } from "vitest";
@@ -11,6 +12,7 @@ import { createApp } from "../src/app.js";
 import type { OperationalLogInput } from "../src/logging/operational-logger.js";
 import { DrizzleEventRepository } from "../src/observability/drizzle-event-repository.js";
 import type { OperationalLogReader } from "../src/observability/operational-log-reader.js";
+import type { SystemMetricsCollector } from "../src/monitoring/system-metrics.js";
 import { createTestDatabase, createTestWebDist } from "./helpers.js";
 
 const cleanups: Array<() => void> = [];
@@ -122,6 +124,47 @@ describe("GET /health", () => {
     expect(response.headers["x-request-id"]).toMatch(
       /^[0-9a-f-]{36}$/i,
     );
+  });
+
+  it("returns available and unavailable system metrics without failing the response", async () => {
+    const testDatabase = createTestDatabase("metrics-route");
+    cleanups.push(testDatabase.cleanup);
+    const collector: SystemMetricsCollector = {
+      async collect() {
+        return {
+          collectedAt: "2026-07-28T12:00:00.000Z",
+          serverUptimeSeconds: 42,
+          memory: {
+            totalBytes: { status: "available", value: 5_763_300_000 },
+            availableBytes: { status: "available", value: 2_183_204_000 },
+          },
+          swap: {
+            totalBytes: { status: "available", value: 4_194_300_000 },
+            usedBytes: { status: "unavailable" },
+          },
+          storage: {
+            totalBytes: { status: "available", value: 112_407_516_000 },
+            availableBytes: { status: "available", value: 73_663_012_000 },
+          },
+          temperatures: {
+            cpuCelsius: { status: "available", value: 36.8 },
+            batteryCelsius: { status: "unavailable" },
+          },
+        };
+      },
+    };
+    const app = createApp({
+      database: testDatabase.database,
+      version: "test",
+      systemMetricsCollector: collector,
+    });
+
+    const response = await request(app).get("/api/monitoring/metrics").expect(200);
+    const payload = SystemMetricsResponseSchema.parse(response.body);
+    expect(payload).toMatchObject({
+      serverUptimeSeconds: 42,
+      temperatures: { batteryCelsius: { status: "unavailable" } },
+    });
   });
 
   it("rejects invalid persisted event filters with a safe client error", async () => {

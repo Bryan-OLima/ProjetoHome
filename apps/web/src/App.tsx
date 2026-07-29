@@ -1,5 +1,6 @@
 import { ServerStatusCard } from "./ServerStatusCard.js";
 import { LogsPage } from "./LogsPage.js";
+import { SystemMetricsPanel } from "./SystemMetricsPanel.js";
 
 export function App() {
   if (window.location.pathname === "/logs") {
@@ -19,6 +20,7 @@ export function App() {
         </a>
       </header>
       <ServerStatusCard />
+      <SystemMetricsPanel />
     </main>
   );
 }

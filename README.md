@@ -2,7 +2,7 @@
 
 Plataforma pessoal e local para transformar um Samsung Galaxy S20 FE em um servidor doméstico. O projeto reunirá dashboard, monitoramento, armazenamento, automações, integrações e um assistente com IA local, preservando privacidade e controle do usuário.
 
-> **Estado atual:** Etapa 2 concluída e validada no S20 FE. Logging, auditoria, retenção, consultas e página de logs estão operacionais. Consulte o [estado operacional](./docs/CURRENT_STATE.md) antes de implementar.
+> **Estado atual:** Etapas 1 e 2 concluídas e validadas no S20 FE. A Etapa 3 está em andamento com o primeiro painel de monitoramento implementado localmente e pendente de validação no aparelho. Consulte o [estado operacional](./docs/CURRENT_STATE.md) antes de implementar.
 
 ## Objetivos
 
@@ -51,6 +51,8 @@ As versões validadas na prova do banco foram `drizzle-orm@1.0.0-rc.4` e `drizzl
 - `GET /api/observability/operational-logs` consulta os arquivos JSONL rotativos mais recentes com filtros tipados e leitura limitada, sem carregar os arquivos inteiros em memória.
 - A página `/logs` reúne as duas fontes, permite filtros por período, nível, tipo, serviço, ação e correlação, e apresenta detalhes técnicos já sanitizados.
 - Os filtros técnicos da página possuem ajuda contextual com as opções disponíveis nesta fase. O campo de serviço permanece livre até existir um catálogo de valores observados.
+- `GET /api/monitoring/metrics` coleta sob demanda uptime do processo, memória, swap, armazenamento e temperaturas expostas pelo aparelho, sem falhar a resposta quando alguma fonte está indisponível.
+- O dashboard raiz apresenta essas métricas com estados de carregamento, indisponibilidade e erro. Dados detalhados da bateria continuarão indisponíveis até uma futura decisão de usar Termux:API.
 - Senhas, tokens, segredos, cookies, sessões e conteúdo privado são removidos antes do registro.
 - As migrations são aplicadas automaticamente ao iniciar o backend. Um erro na migration impede a inicialização com schema parcial.
 
@@ -102,6 +104,14 @@ GET /api/observability/operational-logs
 ```
 
 Filtros opcionais: `from`, `to`, `level` (`debug`, `info`, `warn` ou `error`), `service`, `action`, `correlationId` e `limit` (1 a 100; padrão 50). A resposta possui `items` em ordem do mais recente para o mais antigo e `truncated`. Quando `truncated` é `true`, há eventos mais antigos ou resultados adicionais fora do limite de leitura; não há cursor porque a rotação pode alterar os arquivos entre consultas.
+
+### Monitoramento do aparelho
+
+```text
+GET /api/monitoring/metrics
+```
+
+Sem parâmetros. A resposta traz `serverUptimeSeconds`, memória, swap, armazenamento e temperaturas. Cada leitura declara `status: "available"` com `value`, ou `status: "unavailable"` quando a fonte não pode ser consultada. A coleta ocorre somente ao abrir o dashboard ou consultar a rota; não há processo adicional em segundo plano. A temperatura da bateria pode estar disponível pelas zonas térmicas do Android. Percentual, carregamento, saúde e corrente exigiriam o Termux:API e foram registrados como melhoria futura, ainda não instalada.
 
 ### IA local
 
@@ -282,4 +292,4 @@ O modelo GGUF não é versionado no repositório. Consulte as instruções, hash
 
 ## Próximo passo
 
-Planejar o primeiro incremento vertical da Etapa 3 — monitoramento do S20 FE e dashboard.
+Validar no S20 FE o primeiro incremento da Etapa 3 — rota de métricas e cartões do dashboard.

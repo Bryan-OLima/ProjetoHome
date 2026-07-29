@@ -133,11 +133,14 @@ Este documento define a ordem operacional de construção. Cada etapa deve resul
 
 ## Etapa 3 — Monitoramento do S20 FE e dashboard
 
+**Estado:** ativa em 2026-07-28.
+
 ### Backend
 
 - Coletar uptime, memória, armazenamento, bateria e temperatura quando disponíveis.
 - Expor endpoint tipado de métricas.
 - Detectar métricas indisponíveis sem falhar a resposta inteira.
+- **Implementação futura:** dados detalhados de bateria (percentual, estado de carga, saúde e corrente) dependem do complemento Termux:API. Até sua instalação aprovada, esses campos devem permanecer indisponíveis sem bloquear a temperatura da bateria ou as demais métricas.
 
 ### Frontend
 
