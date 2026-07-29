@@ -54,6 +54,7 @@ As versões validadas na prova do banco foram `drizzle-orm@1.0.0-rc.4` e `drizzl
 - `GET /api/monitoring/metrics` coleta sob demanda uptime do processo, memória, swap, armazenamento e temperaturas expostas pelo aparelho, sem falhar a resposta quando alguma fonte está indisponível.
 - O dashboard raiz apresenta essas métricas com estados de carregamento, indisponibilidade e erro. Dados detalhados da bateria continuarão indisponíveis até uma futura decisão de usar Termux:API.
 - A rota de métricas e os cartões do dashboard foram validados no S20 FE por SSH e no navegador pela rede local.
+- O dashboard também apresenta os cinco eventos operacionais mais recentes, sob demanda e sem polling; essa entrega ainda aguarda validação no S20 FE.
 - Senhas, tokens, segredos, cookies, sessões e conteúdo privado são removidos antes do registro.
 - As migrations são aplicadas automaticamente ao iniciar o backend. Um erro na migration impede a inicialização com schema parcial.
 
@@ -293,4 +294,4 @@ O modelo GGUF não é versionado no repositório. Consulte as instruções, hash
 
 ## Próximo passo
 
-Implementar atividade recente e alertas básicos para concluir a Etapa 3.
+Validar a atividade recente no S20 FE e, em seguida, definir os limites dos alertas básicos da Etapa 3.

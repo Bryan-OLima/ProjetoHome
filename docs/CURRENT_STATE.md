@@ -86,14 +86,16 @@ Monitorar o S20 FE e apresentar as métricas essenciais no dashboard sem degrada
 - Dashboard raiz ampliado com cartões de uptime, memória disponível, swap usada, armazenamento disponível, temperatura da CPU e temperatura da bateria, além de estados explícitos de carregamento, indisponibilidade e falha.
 - Validação local da Etapa 3 aprovada: typecheck dos três workspaces, 40 testes e build de produção.
 - Validação do primeiro incremento da Etapa 3 aprovada no S20 FE: `GET /api/monitoring/metrics` retornou métricas válidas pelo SSH e os cartões do dashboard foram conferidos no navegador pela rede local com host modificado.
+- Atividade recente implementada no dashboard com até cinco eventos operacionais, estados de carregamento, vazio, indisponibilidade e erro, sem polling ou nova persistência.
+- Validação local da atividade recente aprovada: typecheck dos três workspaces, 43 testes e build de produção.
 
 ## Em andamento
 
-- Atividade recente e alertas básicos no dashboard.
+- Validação da atividade recente no S20 FE e definição dos limites dos alertas básicos.
 
 ## Próximo passo recomendado
 
-Implementar atividade recente e alertas básicos no dashboard.
+Validar a atividade recente no S20 FE e definir os limites dos alertas básicos.
 
 ## Melhoria futura registrada
 

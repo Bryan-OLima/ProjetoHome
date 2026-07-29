@@ -1,5 +1,6 @@
 import { ServerStatusCard } from "./ServerStatusCard.js";
 import { LogsPage } from "./LogsPage.js";
+import { RecentActivityPanel } from "./RecentActivityPanel.js";
 import { SystemMetricsPanel } from "./SystemMetricsPanel.js";
 
 export function App() {
@@ -21,6 +22,7 @@ export function App() {
       </header>
       <ServerStatusCard />
       <SystemMetricsPanel />
+      <RecentActivityPanel />
     </main>
   );
 }

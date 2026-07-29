@@ -125,6 +125,24 @@ header p {
 .metric-card span { display: block; color: #9eb0b8; font-size: 0.78rem; }
 .metric-card strong { display: block; margin-top: 0.3rem; font-size: 1rem; }
 
+.activity-panel {
+  margin-top: 1rem;
+  padding: 1.25rem;
+  border: 1px solid #24343d;
+  border-radius: 1rem;
+  background: rgb(18 27 34 / 88%);
+}
+
+.activity-panel h2 { margin: 0; font-size: 1rem; }
+.activity-empty { margin: 1rem 0 0; color: #9eb0b8; }
+.activity-list { display: grid; gap: 0.7rem; margin: 1rem 0 0; padding: 0; list-style: none; }
+.activity-list li { display: grid; grid-template-columns: auto 1fr auto; gap: 0.3rem 0.6rem; align-items: center; }
+.activity-list li > span:last-of-type { color: #9eb0b8; font-size: 0.8rem; }
+.activity-list time { grid-column: 2 / -1; color: #9eb0b8; font-size: 0.76rem; }
+.activity-level { width: fit-content; border-radius: 999px; padding: 0.1rem 0.45rem; color: #9ee5d6; background: #19373d; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; }
+.activity-level--warn { color: #ffe1a8; background: #4d3b1b; }
+.activity-level--error { color: #ffb5b5; background: #4d2427; }
+
 .logs-filters {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
