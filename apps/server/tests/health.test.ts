@@ -9,6 +9,7 @@ import {
 import request from "supertest";
 import { afterEach, describe, expect, it } from "vitest";
 import { createApp } from "../src/app.js";
+import { createSystemMetricsCollector } from "../src/monitoring/system-metrics.js";
 import type { OperationalLogInput } from "../src/logging/operational-logger.js";
 import { DrizzleEventRepository } from "../src/observability/drizzle-event-repository.js";
 import type { OperationalLogReader } from "../src/observability/operational-log-reader.js";
@@ -275,5 +276,18 @@ describe("GET /health", () => {
     const response = await request(app).get("/logs").expect(200);
     expect(response.headers["content-type"]).toMatch(/text\/html/);
     expect(response.text).toContain("Projeto Home estático");
+  });
+});
+
+describe("system metrics collector", () => {
+  it("returns a payload that satisfies the public contract", async () => {
+    const collector = createSystemMetricsCollector({
+      now: () => new Date("2026-07-28T12:00:00.000Z"),
+      uptime: () => 42,
+    });
+
+    const payload = await collector.collect();
+
+    expect(SystemMetricsResponseSchema.parse(payload)).toEqual(payload);
   });
 });

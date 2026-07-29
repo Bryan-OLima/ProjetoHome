@@ -28,11 +28,12 @@ export function createSystemMetricsCollector(dependencies?: {
         readStorageMetrics(storagePath),
         readThermalMetrics(),
       ]);
+      const { swap, ...memoryMetrics } = memory;
       return {
         collectedAt: now().toISOString(),
         serverUptimeSeconds: uptime(),
-        memory,
-        swap: memory.swap,
+        memory: memoryMetrics,
+        swap,
         storage,
         temperatures,
       };

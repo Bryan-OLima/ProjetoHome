@@ -84,7 +84,7 @@ Monitorar o S20 FE e apresentar as métricas essenciais no dashboard sem degrada
 - Primeiro incremento da Etapa 3 implementado: contrato Zod e `GET /api/monitoring/metrics` para coleta sob demanda de uptime, memória, swap, armazenamento e temperaturas disponíveis do aparelho.
 - O coletor isola falhas por fonte e representa cada métrica numérica como disponível ou indisponível, preservando a resposta parcial.
 - Dashboard raiz ampliado com cartões de uptime, memória disponível, swap usada, armazenamento disponível, temperatura da CPU e temperatura da bateria, além de estados explícitos de carregamento, indisponibilidade e falha.
-- Validação local da Etapa 3 aprovada: typecheck dos três workspaces, 39 testes e build de produção.
+- Validação local da Etapa 3 aprovada: typecheck dos três workspaces, 40 testes e build de produção.
 
 ## Em andamento
 
