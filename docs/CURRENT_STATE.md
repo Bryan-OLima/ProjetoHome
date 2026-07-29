@@ -2,7 +2,7 @@
 
 **Atualizado em:** 2026-07-28  
 **Fase atual:** Etapa 3 — Monitoramento do S20 FE e dashboard
-**Estado geral:** Etapas 1 e 2 concluídas e validadas no S20 FE; primeiro incremento da Etapa 3 validado localmente e pendente de ensaio no aparelho
+**Estado geral:** Etapas 1 e 2 concluídas e validadas no S20 FE; métricas principais da Etapa 3 também validadas no aparelho
 
 ## Objetivo da fase atual
 
@@ -85,14 +85,15 @@ Monitorar o S20 FE e apresentar as métricas essenciais no dashboard sem degrada
 - O coletor isola falhas por fonte e representa cada métrica numérica como disponível ou indisponível, preservando a resposta parcial.
 - Dashboard raiz ampliado com cartões de uptime, memória disponível, swap usada, armazenamento disponível, temperatura da CPU e temperatura da bateria, além de estados explícitos de carregamento, indisponibilidade e falha.
 - Validação local da Etapa 3 aprovada: typecheck dos três workspaces, 40 testes e build de produção.
+- Validação do primeiro incremento da Etapa 3 aprovada no S20 FE: `GET /api/monitoring/metrics` retornou métricas válidas pelo SSH e os cartões do dashboard foram conferidos no navegador pela rede local com host modificado.
 
 ## Em andamento
 
-- Ensaio do primeiro incremento da Etapa 3 no S20 FE.
+- Atividade recente e alertas básicos no dashboard.
 
 ## Próximo passo recomendado
 
-Atualizar o S20 FE e validar a rota de métricas e os cartões do dashboard.
+Implementar atividade recente e alertas básicos no dashboard.
 
 ## Melhoria futura registrada
 

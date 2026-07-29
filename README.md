@@ -2,7 +2,7 @@
 
 Plataforma pessoal e local para transformar um Samsung Galaxy S20 FE em um servidor doméstico. O projeto reunirá dashboard, monitoramento, armazenamento, automações, integrações e um assistente com IA local, preservando privacidade e controle do usuário.
 
-> **Estado atual:** Etapas 1 e 2 concluídas e validadas no S20 FE. A Etapa 3 está em andamento com o primeiro painel de monitoramento implementado localmente e pendente de validação no aparelho. Consulte o [estado operacional](./docs/CURRENT_STATE.md) antes de implementar.
+> **Estado atual:** Etapas 1 e 2 concluídas e validadas no S20 FE. A Etapa 3 está em andamento: as métricas principais e o painel de monitoramento foram validados no aparelho; atividade recente e alertas básicos permanecem pendentes. Consulte o [estado operacional](./docs/CURRENT_STATE.md) antes de implementar.
 
 ## Objetivos
 
@@ -53,6 +53,7 @@ As versões validadas na prova do banco foram `drizzle-orm@1.0.0-rc.4` e `drizzl
 - Os filtros técnicos da página possuem ajuda contextual com as opções disponíveis nesta fase. O campo de serviço permanece livre até existir um catálogo de valores observados.
 - `GET /api/monitoring/metrics` coleta sob demanda uptime do processo, memória, swap, armazenamento e temperaturas expostas pelo aparelho, sem falhar a resposta quando alguma fonte está indisponível.
 - O dashboard raiz apresenta essas métricas com estados de carregamento, indisponibilidade e erro. Dados detalhados da bateria continuarão indisponíveis até uma futura decisão de usar Termux:API.
+- A rota de métricas e os cartões do dashboard foram validados no S20 FE por SSH e no navegador pela rede local.
 - Senhas, tokens, segredos, cookies, sessões e conteúdo privado são removidos antes do registro.
 - As migrations são aplicadas automaticamente ao iniciar o backend. Um erro na migration impede a inicialização com schema parcial.
 
@@ -292,4 +293,4 @@ O modelo GGUF não é versionado no repositório. Consulte as instruções, hash
 
 ## Próximo passo
 
-Validar no S20 FE o primeiro incremento da Etapa 3 — rota de métricas e cartões do dashboard.
+Implementar atividade recente e alertas básicos para concluir a Etapa 3.
