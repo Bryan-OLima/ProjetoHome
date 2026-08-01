@@ -20,6 +20,11 @@ const ConfigSchema = z.object({
   AUDIT_RETENTION_DAYS: z.coerce.number().int().min(1).max(3_650).default(365),
   ERROR_RETENTION_DAYS: z.coerce.number().int().min(1).max(3_650).default(90),
   EVENT_RETENTION_BATCH_SIZE: z.coerce.number().int().min(1).max(5_000).default(500),
+  LOCAL_AI_BASE_URL: z.string().url().default("http://127.0.0.1:8080"),
+  LOCAL_AI_MODEL: z.string().min(1).default("Qwen3-1.7B-Q4_K_M"),
+  LOCAL_AI_TIMEOUT_MS: z.coerce.number().int().min(1_000).max(180_000).default(60_000),
+  LOCAL_AI_MAX_INPUT_CHARS: z.coerce.number().int().min(256).max(32_768).default(8_192),
+  LOCAL_AI_MAX_OUTPUT_TOKENS: z.coerce.number().int().min(8).max(512).default(128),
 });
 
 export interface AppConfig {
@@ -35,6 +40,11 @@ export interface AppConfig {
   auditRetentionDays: number;
   errorRetentionDays: number;
   eventRetentionBatchSize: number;
+  localAiBaseUrl: string;
+  localAiModel: string;
+  localAiTimeoutMs: number;
+  localAiMaxInputChars: number;
+  localAiMaxOutputTokens: number;
 }
 
 export function loadConfig(
@@ -55,5 +65,10 @@ export function loadConfig(
     auditRetentionDays: parsed.AUDIT_RETENTION_DAYS,
     errorRetentionDays: parsed.ERROR_RETENTION_DAYS,
     eventRetentionBatchSize: parsed.EVENT_RETENTION_BATCH_SIZE,
+    localAiBaseUrl: parsed.LOCAL_AI_BASE_URL,
+    localAiModel: parsed.LOCAL_AI_MODEL,
+    localAiTimeoutMs: parsed.LOCAL_AI_TIMEOUT_MS,
+    localAiMaxInputChars: parsed.LOCAL_AI_MAX_INPUT_CHARS,
+    localAiMaxOutputTokens: parsed.LOCAL_AI_MAX_OUTPUT_TOKENS,
   };
 }

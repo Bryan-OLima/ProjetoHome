@@ -130,6 +130,8 @@ O primeiro incremento materializa a fronteira entre interpretação e execução
 
 A primeira ferramenta é `system.get_metrics`. Ela exige `monitoring.read`, não recebe argumentos e chama exclusivamente o coletor de métricas do backend, com prazo de 1,5 segundo. O modelo não recebe referência ao coletor, ao shell, ao SQLite ou ao filesystem. A futura orquestração do assistente será a única consumidora desse registro; não haverá endpoint público genérico para executar ferramentas.
 
+`LocalAIService` é o adaptador substituível do runtime. Nesta implementação ele chama somente `POST /v1/chat/completions` do `llama.cpp` em `http://127.0.0.1`, envia o perfil Qwen3-1.7B Q4_K_M e aplica limite somado de entrada, teto de tokens, teto de bytes da resposta e timeout. Erros de conexão, respostas HTTP não bem-sucedidas, timeout e payload inválido tornam apenas a IA indisponível; não afetam dashboard, monitoramento ou o núcleo da API. O adaptador não inicia processos nem expõe o runtime; a estratégia de carga sob demanda continua uma decisão operacional a ser conectada pela orquestração.
+
 ### PC Agent
 
 Processo separado no computador que mantém uma conexão WebSocket com o servidor. Ele anuncia versão e capacidades disponíveis e responde apenas a mensagens reconhecidas.

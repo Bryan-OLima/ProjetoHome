@@ -80,6 +80,11 @@ Copie `apps/server/.env.example` para `apps/server/.env` somente quando precisar
 | `AUDIT_RETENTION_DAYS` | `365` | Retenção dos eventos de auditoria no SQLite. |
 | `ERROR_RETENTION_DAYS` | `90` | Retenção dos eventos de erro no SQLite. |
 | `EVENT_RETENTION_BATCH_SIZE` | `500` | Máximo de eventos removidos de cada tabela por inicialização. |
+| `LOCAL_AI_BASE_URL` | `http://127.0.0.1:8080` | Endereço local do `llama.cpp`; o adaptador aceita somente `127.0.0.1`. |
+| `LOCAL_AI_MODEL` | `Qwen3-1.7B-Q4_K_M` | Nome enviado ao runtime local. |
+| `LOCAL_AI_TIMEOUT_MS` | `60000` | Tempo máximo de cada chamada ao runtime local. |
+| `LOCAL_AI_MAX_INPUT_CHARS` | `8192` | Limite somado de caracteres enviados ao modelo. |
+| `LOCAL_AI_MAX_OUTPUT_TOKENS` | `128` | Limite de tokens solicitados na resposta do modelo. |
 
 ### SQLite
 
@@ -131,6 +136,8 @@ O perfil padrão validado usa:
 - servidor `llama.cpp` restrito a `127.0.0.1` por padrão.
 
 Qualquer exposição do servidor de IA à rede exige autenticação e CORS restritivo. O Qwen3-4B não pode ser requisito de fluxos essenciais antes de uma prova própria no aparelho.
+
+O backend já possui o contrato substituível `LocalAIService`, que chama apenas `/v1/chat/completions` no `llama.cpp` em loopback, limita entrada, saída e tempo de resposta e trata runtime indisponível sem expor detalhes internos. Ele ainda não inicia o modelo nem disponibiliza uma rota de consulta: essa ligação será feita junto da orquestração das ferramentas autorizadas.
 
 ## Resultados das provas no S20 FE
 

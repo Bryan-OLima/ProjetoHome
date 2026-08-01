@@ -105,14 +105,18 @@ Integrar a IA local por meio de ferramentas autorizadas, mantendo o backend como
 - Primeira ferramenta de leitura definida: `system.get_metrics`, com permissão `monitoring.read`, argumentos vazios estritos, timeout de 1,5 segundo e acesso apenas ao coletor de métricas já autorizado.
 - O registro rejeita ferramentas inexistentes e argumentos inválidos antes de qualquer handler; também valida a saída, limita a execução e registra metadados sem conteúdo sensível.
 - Validação local do primeiro incremento técnico da Etapa 5 aprovada: typecheck dos três workspaces, 52 testes e build de produção.
+- Contrato substituível `LocalAIService` implementado para o endpoint de chat completion do `llama.cpp`, aceitando exclusivamente `http://127.0.0.1`.
+- O serviço limita mensagens, caracteres de entrada, tokens de saída, bytes da resposta e tempo de execução; runtime indisponível, timeout e resposta inválida falham de modo isolado.
+- Configurações do runtime local registradas em ambiente, com perfil padrão Qwen3-1.7B Q4_K_M, timeout de 60 segundos, 8.192 caracteres de entrada e 128 tokens de saída.
+- Validação local do segundo incremento técnico da Etapa 5 aprovada: typecheck dos três workspaces, 58 testes e build de produção.
 
 ## Em andamento
 
-- Integração do contrato `LocalAIService` com o runtime local `llama.cpp` e entrega da primeira consulta ponta a ponta.
+- Orquestração da primeira consulta ponta a ponta: interpretar uma intenção limitada, executar `system.get_metrics` pelo registro e responder de forma segura.
 
 ## Próximo passo recomendado
 
-Definir o contrato substituível `LocalAIService` e conectá-lo ao `llama.cpp` local, usando somente o registro de ferramentas autorizado.
+Criar o caso de uso de consulta do assistente, conectando `LocalAIService` ao registro de ferramentas sem expor executor público genérico.
 
 ## Melhoria futura registrada
 
