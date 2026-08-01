@@ -164,8 +164,7 @@ Para validar a consulta ponta a ponta no S20 FE, abra duas sessões SSH. Na prim
 
 ```bash
 cd ~/ProjetoHome
-mkdir -p var/log
-llama-server -m "$HOME/ProjetoHome/models/Qwen_Qwen3-1.7B-Q4_K_M.gguf" -c 4096 -t 4 -ngl 0 --host 127.0.0.1 --port 8080 2>&1 | tee var/log/llama-server.log
+llama-server -m "$HOME/ProjetoHome/models/Qwen_Qwen3-1.7B-Q4_K_M.gguf" -c 4096 -t 4 -ngl 0 --host 127.0.0.1 --port 8080
 ```
 
 Na segunda sessão, inicie o processo principal normalmente:
