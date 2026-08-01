@@ -8,6 +8,10 @@ import { z } from "zod";
 import type { OperationalLogger } from "../logging/operational-logger.js";
 import type { ToolRegistry } from "../tools/registry.js";
 import {
+  createAssistantResponsePrompt,
+  isExplicitMetricsQuery,
+} from "./assistant-context.js";
+import {
   InvalidLocalAIRequestError,
   InvalidLocalAIResponseError,
   LocalAITimeoutError,
@@ -22,22 +26,14 @@ const ToolDecisionSchema = z
     arguments: z.object({}).strict(),
   })
   .strict();
-const UnsupportedDecisionSchema = z.object({ action: z.literal("unsupported") }).strict();
-const TextDecisionSchema = z
-  .object({ action: z.literal("text"), message: z.string().trim().min(1).max(480) })
-  .strict();
-const AssistantDecisionSchema = z.union([
-  ToolDecisionSchema,
-  UnsupportedDecisionSchema,
-  TextDecisionSchema,
-]);
+const TextDecisionSchema = z.object({ action: z.literal("text") }).strict();
+const AssistantDecisionSchema = z.union([ToolDecisionSchema, TextDecisionSchema]);
 
 const decisionPrompt = [
-  "/no_think Voc\u00ea \u00e9 o assistente local do Projeto Home.",
-  "Responda somente JSON v\u00e1lido, sem markdown e sem chaves extras.",
-  "Para perguntas sobre o estado atual do servidor, uptime, mem\u00f3ria, swap, armazenamento, temperatura da CPU ou bateria, incluindo por exemplo 'Como est\u00e1 a mem\u00f3ria do servidor?', responda {\"action\":\"tool\",\"tool\":\"system.get_metrics\",\"arguments\":{}}.",
-  "Para perguntas gerais sobre as capacidades, ferramentas, privacidade ou limites do Projeto Home, responda {\"action\":\"text\",\"message\":\"resposta curta em portugu\u00eas\"}. N\u00e3o afirme dados atuais nem a execu\u00e7\u00e3o de uma a\u00e7\u00e3o nessa resposta.",
-  "Para qualquer pedido fora das capacidades atuais, responda {\"action\":\"unsupported\"}.",
+  "/no_think Voce e o classificador do assistente local Projeto Home.",
+  "Responda somente JSON valido, sem markdown e sem chaves extras.",
+  "Para perguntas sobre dados atuais do servidor, uptime, memoria, swap, armazenamento, espaco, temperatura da CPU ou bateria, incluindo 'Como esta a memoria e a temperatura do servidor?', responda {\"action\":\"tool\",\"tool\":\"system.get_metrics\",\"arguments\":{}}.",
+  "Para qualquer outra pergunta, responda {\"action\":\"text\"}.",
 ].join(" ");
 
 export interface QueryAssistant {
@@ -65,22 +61,13 @@ export function createQueryAssistant(dependencies: {
           maxTokens: 96,
         });
         const decision = parseDecision(decisionResponse.content);
+        const shouldUseMetrics = decision.action === "tool" || isExplicitMetricsQuery(input.query.query);
 
-        if (decision.action === "unsupported") {
-          const response = AssistantQueryResponseSchema.parse({
-            kind: "unsupported",
-            message: "Esta consulta ainda n\u00e3o possui uma ferramenta autorizada.",
-            requestId: input.requestId,
-            correlationId: input.correlationId,
-          });
-          logQuery(dependencies.logger, input, "success", startedAt, { result: "unsupported" });
-          return response;
-        }
-
-        if (decision.action === "text") {
+        if (!shouldUseMetrics) {
+          const message = await generateGroundedText(dependencies.localAIService, input.query.query);
           const response = AssistantQueryResponseSchema.parse({
             kind: "text",
-            message: decision.message,
+            message,
             requestId: input.requestId,
             correlationId: input.correlationId,
           });
@@ -90,23 +77,28 @@ export function createQueryAssistant(dependencies: {
 
         const result = SystemMetricsResponseSchema.parse(
           await dependencies.toolRegistry.execute(
-            decision.tool,
-            decision.arguments,
+            "system.get_metrics",
+            {},
             {
               requestId: input.requestId,
               correlationId: input.correlationId,
             },
           ),
         );
+        const message = await generateGroundedText(
+          dependencies.localAIService,
+          input.query.query,
+          result,
+        );
         const response = AssistantQueryResponseSchema.parse({
           kind: "tool_result",
-          message: "M\u00e9tricas atuais do servidor consultadas.",
-          tool: decision.tool,
+          message,
+          tool: "system.get_metrics",
           data: result,
           requestId: input.requestId,
           correlationId: input.correlationId,
         });
-        logQuery(dependencies.logger, input, "success", startedAt, { tool: decision.tool });
+        logQuery(dependencies.logger, input, "success", startedAt, { tool: "system.get_metrics" });
         return response;
       } catch (error) {
         logQuery(dependencies.logger, input, "failure", startedAt, {
@@ -120,6 +112,7 @@ export function createQueryAssistant(dependencies: {
 
 function getFailureCode(error: unknown): string {
   if (error instanceof InvalidAssistantDecisionError) return "invalid_assistant_decision";
+  if (error instanceof InvalidAssistantTextError) return "invalid_assistant_text";
   if (error instanceof InvalidLocalAIRequestError) return "invalid_local_ai_request";
   if (error instanceof InvalidLocalAIResponseError) return "invalid_local_ai_response";
   if (error instanceof LocalAITimeoutError) return "local_ai_timeout";
@@ -133,6 +126,12 @@ export class InvalidAssistantDecisionError extends Error {
   }
 }
 
+export class InvalidAssistantTextError extends Error {
+  constructor() {
+    super("invalid_assistant_text");
+  }
+}
+
 function parseDecision(content: string) {
   try {
     const parsed = AssistantDecisionSchema.safeParse(JSON.parse(content));
@@ -141,6 +140,26 @@ function parseDecision(content: string) {
     // The model output is untrusted and intentionally has no fallback parser.
   }
   throw new InvalidAssistantDecisionError();
+}
+
+async function generateGroundedText(
+  localAIService: LocalAIService,
+  query: string,
+  metrics?: ReturnType<typeof SystemMetricsResponseSchema.parse>,
+): Promise<string> {
+  const response = await localAIService.generate({
+    messages: [{
+      role: "system",
+      content: createAssistantResponsePrompt({
+        query,
+        ...(metrics === undefined ? {} : { metrics }),
+      }),
+    }],
+    maxTokens: 128,
+  });
+  const message = response.content.trim();
+  if (!message || message.length > 480) throw new InvalidAssistantTextError();
+  return message;
 }
 
 function logQuery(

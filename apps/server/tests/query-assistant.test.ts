@@ -19,61 +19,49 @@ const metrics = SystemMetricsResponseSchema.parse({
 });
 
 describe("query assistant", () => {
-  it("executes only the decision from the allowlisted tool contract", async () => {
+  it("uses the read-only metrics tool when the model authorizes it", async () => {
     const execute = vi.fn(async () => metrics);
     const log = vi.fn();
-    const assistant = createQueryAssistant({
-      localAIService: {
-        generate: async () => ({ content: "{\"action\":\"tool\",\"tool\":\"system.get_metrics\",\"arguments\":{}}" }),
-      },
-      toolRegistry: { execute },
-      logger: { log },
-    });
+    const generate = vi.fn()
+      .mockResolvedValueOnce({ content: "{\"action\":\"tool\",\"tool\":\"system.get_metrics\",\"arguments\":{}}" })
+      .mockResolvedValueOnce({ content: "A mem\u00f3ria e a temperatura atuais est\u00e3o dispon\u00edveis nos dados consultados." });
+    const assistant = createQueryAssistant({ localAIService: { generate }, toolRegistry: { execute }, logger: { log } });
 
-    const response = await assistant.execute({ query: { query: "Como está o servidor?" }, ...metadata });
+    const response = await assistant.execute({ query: { query: "Como est\u00e1 o servidor?" }, ...metadata });
 
     expect(response).toMatchObject({ kind: "tool_result", tool: "system.get_metrics", data: metrics });
     expect(execute).toHaveBeenCalledWith("system.get_metrics", {}, metadata);
-    expect(log).toHaveBeenCalledWith(expect.objectContaining({
-      action: "assistant.query",
-      requestId: metadata.requestId,
-      correlationId: metadata.correlationId,
-      context: { tool: "system.get_metrics" },
-    }));
+    expect(log).toHaveBeenCalledWith(expect.objectContaining({ context: { tool: "system.get_metrics" } }));
   });
 
-  it("returns a safe response for a request without an authorized tool", async () => {
-    const execute = vi.fn();
-    const assistant = createQueryAssistant({
-      localAIService: { generate: async () => ({ content: "{\"action\":\"unsupported\"}" }) },
-      toolRegistry: { execute },
-      logger: { log: vi.fn() },
-    });
+  it("uses a safe metrics fallback for explicit current metric queries", async () => {
+    const execute = vi.fn(async () => metrics);
+    const generate = vi.fn()
+      .mockResolvedValueOnce({ content: "{\"action\":\"text\"}" })
+      .mockResolvedValueOnce({ content: "Os dados atuais de mem\u00f3ria e temperatura foram consultados." });
+    const assistant = createQueryAssistant({ localAIService: { generate }, toolRegistry: { execute }, logger: { log: vi.fn() } });
 
-    await expect(assistant.execute({ query: { query: "Abra meus e-mails" }, ...metadata }))
-      .resolves.toMatchObject({ kind: "unsupported" });
-    expect(execute).not.toHaveBeenCalled();
+    await expect(assistant.execute({
+      query: { query: "Como est\u00e1 a mem\u00f3ria e a temperatura do servidor?" },
+      ...metadata,
+    })).resolves.toMatchObject({ kind: "tool_result" });
+    expect(execute).toHaveBeenCalledOnce();
   });
 
-  it("returns a bounded text response for a general Project Home question", async () => {
+  it("generates grounded text without executing a tool for general questions", async () => {
     const execute = vi.fn();
-    const assistant = createQueryAssistant({
-      localAIService: {
-        generate: async () => ({ content: "{\"action\":\"text\",\"message\":\"Posso consultar as m\u00e9tricas atuais do servidor.\"}" }),
-      },
-      toolRegistry: { execute },
-      logger: { log: vi.fn() },
-    });
+    const generate = vi.fn()
+      .mockResolvedValueOnce({ content: "{\"action\":\"text\"}" })
+      .mockResolvedValueOnce({ content: "Posso consultar as m\u00e9tricas atuais do servidor e explicar os limites atuais." });
+    const assistant = createQueryAssistant({ localAIService: { generate }, toolRegistry: { execute }, logger: { log: vi.fn() } });
 
     await expect(assistant.execute({ query: { query: "O que voc\u00ea consegue fazer?" }, ...metadata }))
-      .resolves.toMatchObject({
-        kind: "text",
-        message: "Posso consultar as m\u00e9tricas atuais do servidor.",
-      });
+      .resolves.toMatchObject({ kind: "text" });
     expect(execute).not.toHaveBeenCalled();
+    expect(generate.mock.calls[1]?.[0].messages[0].content).toContain("Gmail");
   });
 
-  it("rejects malformed model output instead of guessing a tool", async () => {
+  it("rejects malformed model decisions instead of guessing a tool", async () => {
     const execute = vi.fn();
     const log = vi.fn();
     const assistant = createQueryAssistant({
@@ -82,7 +70,7 @@ describe("query assistant", () => {
       logger: { log },
     });
 
-    await expect(assistant.execute({ query: { query: "Como está o servidor?" }, ...metadata }))
+    await expect(assistant.execute({ query: { query: "Como est\u00e1 o servidor?" }, ...metadata }))
       .rejects.toBeInstanceOf(InvalidAssistantDecisionError);
     expect(execute).not.toHaveBeenCalled();
     expect(log).toHaveBeenCalledWith(expect.objectContaining({

@@ -10,6 +10,7 @@ import { HttpError } from "../http-error.js";
 import type { AppLocals, NoRouteParams } from "../observability/routes.js";
 import {
   InvalidAssistantDecisionError,
+  InvalidAssistantTextError,
   type QueryAssistant,
 } from "./query-assistant.js";
 import {
@@ -56,7 +57,11 @@ export function createAssistantRouter(dependencies: { queryAssistant: QueryAssis
       if (error instanceof LocalAITimeoutError) {
         throw new HttpError(504, "local_ai_timeout", "Local AI did not respond in time.");
       }
-      if (error instanceof InvalidLocalAIResponseError || error instanceof InvalidAssistantDecisionError) {
+      if (
+        error instanceof InvalidLocalAIResponseError ||
+        error instanceof InvalidAssistantDecisionError ||
+        error instanceof InvalidAssistantTextError
+      ) {
         throw new HttpError(502, "local_ai_invalid_response", "Local AI returned an invalid response.");
       }
       throw error;

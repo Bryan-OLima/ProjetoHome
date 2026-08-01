@@ -148,7 +148,9 @@ Content-Type: application/json
 {"query":"Como está a memória e a temperatura do servidor?"}
 ```
 
-O painel **Assistente local** na dashboard usa essa rota. O modelo recebe a pergunta para escolher entre a ferramenta `system.get_metrics`, uma resposta textual curta sobre capacidades e limites do Projeto Home, ou a resposta de capacidade ainda não disponível. A escolha precisa ser JSON estrito; o backend valida essa decisão, executa somente a ferramenta registrada e devolve dados estruturados apenas quando houver consulta atual. Perguntas, prompts e respostas do modelo não são registrados nos logs.
+O painel **Assistente local** na dashboard usa essa rota. Primeiro, o modelo escolhe entre a ferramenta `system.get_metrics` e uma resposta textual. O backend valida essa decisão; consultas explícitas de métricas também possuem uma queda segura para a mesma ferramenta de leitura. Em seguida, o modelo produz uma resposta natural a partir de um contexto factual curto do Projeto Home e, quando aplicável, do resultado sanitizado da ferramenta. Ele não recebe documentos, logs, arquivos ou banco completos, nem pode inventar capacidades fora desse contexto. Perguntas, prompts e respostas do modelo não são registrados nos logs.
+
+Perguntas como “como está a temperatura da CPU?” ou “quanta memória disponível há?” acionam `system.get_metrics` mesmo se a classificação do modelo falhar. A resposta natural é acompanhada pela seção **Dados consultados**, que preserva os valores estruturados; se uma fonte do Android não estiver disponível, ela é indicada como indisponível em vez de ser estimada.
 
 Para a primeira validação, o `llama-server` deve estar em execução separadamente e restrito ao loopback, com o perfil aprovado:
 

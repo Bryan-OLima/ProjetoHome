@@ -17,44 +17,31 @@ describe("POST /api/assistant/query", () => {
     const testDatabase = createTestDatabase("assistant-route");
     cleanups.push(testDatabase.cleanup);
     const execute = vi.fn(async ({ requestId, correlationId }: Parameters<QueryAssistant["execute"]>[0]) => ({
-      kind: "unsupported" as const,
-      message: "Esta consulta ainda não possui uma ferramenta autorizada.",
+      kind: "text" as const,
+      message: "O Projeto Home pode consultar as metricas atuais do servidor.",
       requestId,
       correlationId,
     }));
-    const app = createApp({
-      database: testDatabase.database,
-      version: "test",
-      queryAssistant: { execute },
-    });
+    const app = createApp({ database: testDatabase.database, version: "test", queryAssistant: { execute } });
 
     const response = await request(app)
       .post("/api/assistant/query")
-      .send({ query: "Como está o servidor?" })
+      .send({ query: "Como esta o servidor?" })
       .expect(200);
     const payload = AssistantQueryResponseSchema.parse(response.body);
 
     expect(payload.requestId).toBe(response.headers["x-request-id"]);
     expect(payload.correlationId).toMatch(/^[0-9a-f-]{36}$/i);
-    expect(execute).toHaveBeenCalledWith(expect.objectContaining({
-      query: { query: "Como está o servidor?" },
-    }));
+    expect(execute).toHaveBeenCalledWith(expect.objectContaining({ query: { query: "Como esta o servidor?" } }));
   });
 
   it("rejects malformed input without invoking the assistant", async () => {
     const testDatabase = createTestDatabase("assistant-invalid-request");
     cleanups.push(testDatabase.cleanup);
     const execute = vi.fn();
-    const app = createApp({
-      database: testDatabase.database,
-      version: "test",
-      queryAssistant: { execute },
-    });
+    const app = createApp({ database: testDatabase.database, version: "test", queryAssistant: { execute } });
 
-    const response = await request(app)
-      .post("/api/assistant/query")
-      .send({ query: " " })
-      .expect(400);
+    const response = await request(app).post("/api/assistant/query").send({ query: " " }).expect(400);
 
     expect(ErrorResponseSchema.parse(response.body).error.code).toBe("invalid_request");
     expect(execute).not.toHaveBeenCalled();
@@ -66,16 +53,12 @@ describe("POST /api/assistant/query", () => {
     const app = createApp({
       database: testDatabase.database,
       version: "test",
-      queryAssistant: {
-        async execute() {
-          throw new LocalAIUnavailableError();
-        },
-      },
+      queryAssistant: { async execute() { throw new LocalAIUnavailableError(); } },
     });
 
     const response = await request(app)
       .post("/api/assistant/query")
-      .send({ query: "Como está o servidor?" })
+      .send({ query: "Como esta o servidor?" })
       .expect(503);
 
     expect(ErrorResponseSchema.parse(response.body).error).toMatchObject({
