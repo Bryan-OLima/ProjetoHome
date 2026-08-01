@@ -57,6 +57,7 @@ As versões validadas na prova do banco foram `drizzle-orm@1.0.0-rc.4` e `drizzl
 - O dashboard também apresenta os cinco eventos operacionais mais recentes, sob demanda e sem polling; essa entrega foi validada no S20 FE.
 - Alertas básicos usam os limites iniciais de memória disponível abaixo de 15%, swap usada acima de 75%, armazenamento disponível abaixo de 10% e temperaturas a partir de 45 °C. O estado normal sem alertas foi validado no S20 FE.
 - `GET /api/storage/locations` mostra capacidade total, usada e disponível da única raiz de storage autorizada nesta fase, sem aceitar caminhos do navegador.
+- `GET /api/storage/internal/items` lista até 50 metadados de itens da raiz autorizada, sem recursão, leitura de conteúdo ou caminho informado pelo navegador; o inventário ainda aguarda validação no S20 FE.
 - Senhas, tokens, segredos, cookies, sessões e conteúdo privado são removidos antes do registro.
 - As migrations são aplicadas automaticamente ao iniciar o backend. Um erro na migration impede a inicialização com schema parcial.
 
@@ -297,4 +298,4 @@ O modelo GGUF não é versionado no repositório. Consulte as instruções, hash
 
 ## Próximo passo
 
-Validar no S20 FE a capacidade da raiz interna autorizada e o cartão de storage no dashboard.
+Validar no S20 FE o inventário seguro da raiz interna autorizada.

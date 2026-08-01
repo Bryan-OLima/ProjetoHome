@@ -41,7 +41,14 @@ export {
 } from "./monitoring.js";
 export {
   StorageLocationSchema,
+  StorageItemSchema,
+  ListStorageItemsQuerySchema,
+  ListStorageItemsResponseSchema,
   StorageSummaryResponseSchema,
+  type ListStorageItemsQuery,
+  type ListStorageItemsQueryInput,
+  type ListStorageItemsResponse,
   type StorageLocation,
+  type StorageItem,
   type StorageSummaryResponse,
 } from "./storage.js";

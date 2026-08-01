@@ -89,6 +89,8 @@ A temperatura da bateria é lida da zona térmica quando o Android a expõe. Per
 
 O endpoint `GET /api/storage/locations` não recebe caminhos do navegador. Nesta primeira fatia ele conhece somente a raiz interna `STORAGE_ROOT`, cujo padrão é `./data/storage` no armazenamento privado do Termux. O backend cria essa raiz gerenciada quando necessário e consulta seu filesystem para retornar capacidade total, usada e disponível. Falha de criação ou leitura torna apenas essa localização indisponível; não expõe caminhos absolutos, não inventaria arquivos e não permite acessar outras áreas do aparelho. MicroSD e inventário de conteúdo permanecem fora desta fatia.
 
+O inventário complementar `GET /api/storage/internal/items` também usa somente essa raiz fixa. Ele lista no máximo 100 entradas diretas, ordenadas por nome, com nome, tipo, tamanho e data de modificação; não recebe caminho, não percorre subdiretórios, não lê conteúdo e identifica links simbólicos sem segui-los.
+
 ### SQLite
 
 Armazena configurações não secretas, metadados, estados, histórico necessário e referências de auditoria. O backend é o único proprietário do arquivo e usa Drizzle ORM com o driver nativo `node:sqlite` como camada de acesso. Tokens e segredos exigem armazenamento protegido e não devem ser tratados como dados comuns.

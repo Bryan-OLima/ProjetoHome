@@ -2,7 +2,7 @@
 
 **Atualizado em:** 2026-08-01
 **Fase atual:** Etapa 4 — Storage service
-**Estado geral:** Etapas 1, 2 e 3 concluídas e validadas no S20 FE; primeiro incremento da Etapa 4 validado localmente e pendente de ensaio no aparelho
+**Estado geral:** Etapas 1, 2 e 3 concluídas e validadas no S20 FE; capacidade do primeiro incremento da Etapa 4 validada no aparelho e inventário seguro validado localmente
 
 ## Objetivo da fase atual
 
@@ -96,14 +96,17 @@ Expor capacidade e disponibilidade de armazenamento com raízes autorizadas, sem
 - `GET /api/storage/locations` expõe somente capacidade total, usada e disponível dessa raiz; resposta parcial segura indica indisponibilidade da raiz sem falhar a API.
 - Dashboard ampliado com cartão de armazenamento interno e estados de carregamento, indisponibilidade e erro.
 - Validação local da Etapa 4 aprovada: typecheck dos três workspaces, 47 testes e build de produção.
+- Validação do primeiro incremento da Etapa 4 aprovada no S20 FE: `GET /api/storage/locations` e o cartão de armazenamento interno responderam normalmente.
+- Inventário seguro da raiz interna implementado em `GET /api/storage/internal/items`: máximo de 100 itens por consulta, raiz fixa, sem recursão, sem leitura de conteúdo e sem seguir links simbólicos.
+- Validação local do inventário aprovada: typecheck dos três workspaces, 48 testes e build de produção, incluindo rejeição de parâmetro de caminho arbitrário.
 
 ## Em andamento
 
-- Ensaio do primeiro incremento da Etapa 4 no S20 FE.
+- Ensaio do inventário seguro da raiz interna no S20 FE.
 
 ## Próximo passo recomendado
 
-Atualizar o S20 FE e validar a capacidade da raiz interna autorizada e seu cartão no dashboard.
+Atualizar o S20 FE e validar o inventário seguro da raiz interna.
 
 ## Melhoria futura registrada
 

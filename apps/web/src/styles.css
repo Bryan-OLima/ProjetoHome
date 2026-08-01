@@ -154,6 +154,9 @@ header p {
 .storage-panel__metrics div { padding: 0.8rem; border-radius: 0.7rem; background: #101b21; }
 .storage-panel__metrics span { display: block; color: #9eb0b8; font-size: 0.78rem; }
 .storage-panel__metrics strong { display: block; margin-top: 0.3rem; font-size: 1rem; }
+.storage-items { display: grid; gap: 0.45rem; margin: 1rem 0 0; padding: 0; list-style: none; }
+.storage-items li { display: flex; justify-content: space-between; gap: 1rem; padding-top: 0.45rem; border-top: 1px solid #24343d; }
+.storage-items span { color: #9eb0b8; font-size: 0.82rem; }
 
 .logs-filters {
   display: grid;

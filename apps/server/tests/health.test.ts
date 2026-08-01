@@ -186,6 +186,9 @@ describe("GET /health", () => {
           }],
         };
       },
+      async listItems() {
+        return { items: [], truncated: false };
+      },
     };
     const app = createApp({
       database: testDatabase.database,
@@ -195,6 +198,25 @@ describe("GET /health", () => {
 
     const response = await request(app).get("/api/storage/locations").expect(200);
     expect(StorageSummaryResponseSchema.parse(response.body).locations).toHaveLength(1);
+  });
+
+  it("lists only metadata from the fixed internal root", async () => {
+    const testDatabase = createTestDatabase("storage-items-route");
+    cleanups.push(testDatabase.cleanup);
+    const storageService: StorageService = {
+      async getSummary() {
+        return { locations: [{ id: "internal", label: "Armazenamento interno", status: "available", totalBytes: { status: "available", value: 100 }, usedBytes: { status: "available", value: 25 }, availableBytes: { status: "available", value: 75 } }] };
+      },
+      async listItems(limit) {
+        expect(limit).toBe(1);
+        return { items: [{ name: "notes.txt", kind: "file", sizeBytes: 12, modifiedAt: "2026-08-01T12:00:00.000Z" }], truncated: false };
+      },
+    };
+    const app = createApp({ database: testDatabase.database, version: "test", storageService });
+
+    const response = await request(app).get("/api/storage/internal/items?limit=1").expect(200);
+    expect(response.body.items[0]).toMatchObject({ name: "notes.txt", kind: "file" });
+    await request(app).get("/api/storage/internal/items?path=../secret").expect(400);
   });
 
   it("rejects invalid persisted event filters with a safe client error", async () => {

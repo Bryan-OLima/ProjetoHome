@@ -11,6 +11,8 @@ import {
   type ListPersistedEventsResponse,
   type SystemMetricsResponse,
   type StorageSummaryResponse,
+  ListStorageItemsResponseSchema,
+  type ListStorageItemsResponse,
 } from "@projeto-home/contracts";
 
 export async function getHealth(signal?: AbortSignal): Promise<HealthResponse> {
@@ -50,6 +52,10 @@ export async function getSystemMetrics(signal?: AbortSignal): Promise<SystemMetr
 
 export async function getStorageSummary(signal?: AbortSignal): Promise<StorageSummaryResponse> {
   return getJson("/api/storage/locations", StorageSummaryResponseSchema, signal);
+}
+
+export async function getStorageItems(signal?: AbortSignal): Promise<ListStorageItemsResponse> {
+  return getJson("/api/storage/internal/items?limit=50", ListStorageItemsResponseSchema, signal);
 }
 
 async function getJson<T>(
