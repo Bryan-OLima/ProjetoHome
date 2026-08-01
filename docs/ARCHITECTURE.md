@@ -126,6 +126,10 @@ Fluxo esperado:
 7. A IA ou o backend produz a resposta final.
 8. Logs e auditoria registram metadados do fluxo.
 
+O primeiro incremento materializa a fronteira entre interpretação e execução em um registro interno de ferramentas. Cada definição contém nome único, descrição, permissão, schemas Zod de entrada e saída, timeout e handler. O registro é uma allowlist: ferramentas inexistentes e argumentos inválidos são rejeitados antes do handler; o resultado do handler também é validado. Cada tentativa registra somente metadados correlacionados — ferramenta, permissão, resultado, duração e código estável de erro — sem prompts, argumentos ou conteúdo devolvido.
+
+A primeira ferramenta é `system.get_metrics`. Ela exige `monitoring.read`, não recebe argumentos e chama exclusivamente o coletor de métricas do backend, com prazo de 1,5 segundo. O modelo não recebe referência ao coletor, ao shell, ao SQLite ou ao filesystem. A futura orquestração do assistente será a única consumidora desse registro; não haverá endpoint público genérico para executar ferramentas.
+
 ### PC Agent
 
 Processo separado no computador que mantém uma conexão WebSocket com o servidor. Ele anuncia versão e capacidades disponíveis e responde apenas a mensagens reconhecidas.

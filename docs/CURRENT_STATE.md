@@ -2,7 +2,7 @@
 
 **Atualizado em:** 2026-08-01
 **Fase atual:** Etapa 5 — IA local e registro de ferramentas
-**Estado geral:** Etapas 1, 2, 3 e 4 concluídas e validadas no S20 FE; Etapa 5 aguardando primeiro incremento vertical
+**Estado geral:** Etapas 1, 2, 3 e 4 concluídas e validadas no S20 FE; primeiro incremento técnico da Etapa 5 concluído localmente
 
 ## Objetivo da fase atual
 
@@ -101,14 +101,18 @@ Integrar a IA local por meio de ferramentas autorizadas, mantendo o backend como
 - Validação local do inventário aprovada: typecheck dos três workspaces, 48 testes e build de produção, incluindo rejeição de parâmetro de caminho arbitrário.
 - Validação final da Etapa 4 aprovada no S20 FE em 2026-08-01: inventário da raiz interna exibido normalmente pelo endpoint e pelo dashboard.
 - Etapa 4 concluída: armazenamento interno possui capacidade e inventário seguro; não há microSD instalado no aparelho atual.
+- Registro interno de ferramentas da IA implementado com allowlist, schema Zod de entrada e saída, permissão declarada, timeout e logging correlacionado.
+- Primeira ferramenta de leitura definida: `system.get_metrics`, com permissão `monitoring.read`, argumentos vazios estritos, timeout de 1,5 segundo e acesso apenas ao coletor de métricas já autorizado.
+- O registro rejeita ferramentas inexistentes e argumentos inválidos antes de qualquer handler; também valida a saída, limita a execução e registra metadados sem conteúdo sensível.
+- Validação local do primeiro incremento técnico da Etapa 5 aprovada: typecheck dos três workspaces, 52 testes e build de produção.
 
 ## Em andamento
 
-- Planejamento do primeiro incremento vertical da Etapa 5 — IA local e registro de ferramentas.
+- Integração do contrato `LocalAIService` com o runtime local `llama.cpp` e entrega da primeira consulta ponta a ponta.
 
 ## Próximo passo recomendado
 
-Definir a primeira ferramenta de leitura autorizada e o contrato do serviço de IA local.
+Definir o contrato substituível `LocalAIService` e conectá-lo ao `llama.cpp` local, usando somente o registro de ferramentas autorizado.
 
 ## Melhoria futura registrada
 
