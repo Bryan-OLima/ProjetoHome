@@ -113,6 +113,9 @@ Integrar a IA local por meio de ferramentas autorizadas, mantendo o backend como
 - Dashboard ampliado com o painel Assistente local, entrada em linguagem natural, resposta textual, dados JSON consultados e estado seguro de indisponibilidade.
 - Perguntas, prompts, argumentos e respostas da IA não seguem para os logs; são registrados apenas metadados correlacionados de consulta e ferramenta.
 - Validação local da consulta ponta a ponta aprovada: typecheck dos três workspaces, 68 testes e build de produção. A validação real com `llama.cpp` e S20 FE permanece pendente.
+- Assistente ampliado com resposta textual limitada para perguntas gerais sobre capacidades, privacidade e limites do Projeto Home, sem execução de ferramenta ou afirmação de dados atuais.
+- Prompt de decisão traduzido para português com exemplo explícito de consulta de memória; textos do painel normalizados em UTF-8.
+- Validação local da manutenção do assistente aprovada: typecheck dos três workspaces, 70 testes e build de produção. A validação real com `llama.cpp` e S20 FE permanece pendente.
 
 ## Em andamento
 

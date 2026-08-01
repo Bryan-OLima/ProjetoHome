@@ -55,6 +55,24 @@ describe("query assistant", () => {
     expect(execute).not.toHaveBeenCalled();
   });
 
+  it("returns a bounded text response for a general Project Home question", async () => {
+    const execute = vi.fn();
+    const assistant = createQueryAssistant({
+      localAIService: {
+        generate: async () => ({ content: "{\"action\":\"text\",\"message\":\"Posso consultar as m\u00e9tricas atuais do servidor.\"}" }),
+      },
+      toolRegistry: { execute },
+      logger: { log: vi.fn() },
+    });
+
+    await expect(assistant.execute({ query: { query: "O que voc\u00ea consegue fazer?" }, ...metadata }))
+      .resolves.toMatchObject({
+        kind: "text",
+        message: "Posso consultar as m\u00e9tricas atuais do servidor.",
+      });
+    expect(execute).not.toHaveBeenCalled();
+  });
+
   it("rejects malformed model output instead of guessing a tool", async () => {
     const execute = vi.fn();
     const log = vi.fn();

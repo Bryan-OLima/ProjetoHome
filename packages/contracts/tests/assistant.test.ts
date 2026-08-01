@@ -29,4 +29,13 @@ describe("assistant contracts", () => {
     expect(AssistantQueryRequestSchema.safeParse({ query: "  " }).success).toBe(false);
     expect(AssistantQueryRequestSchema.safeParse({ query: "x".repeat(4_097) }).success).toBe(false);
   });
+
+  it("accepts a bounded general text response", () => {
+    expect(AssistantQueryResponseSchema.safeParse({
+      kind: "text",
+      message: "Posso explicar as capacidades atuais do Projeto Home.",
+      requestId: "6a6818be-90b0-43e9-8391-b3efe3d3f094",
+      correlationId: "b66aa9b5-3187-40c6-94e9-ca080618b1c7",
+    }).success).toBe(true);
+  });
 });

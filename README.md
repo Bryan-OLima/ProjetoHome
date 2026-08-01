@@ -148,7 +148,7 @@ Content-Type: application/json
 {"query":"Como está a memória e a temperatura do servidor?"}
 ```
 
-O painel **Assistente local** na dashboard usa essa rota. O modelo recebe a pergunta apenas para escolher entre a ferramenta `system.get_metrics` e a resposta de capacidade ainda não disponível. A escolha precisa ser JSON estrito; o backend valida essa decisão, executa somente a ferramenta registrada e devolve uma mensagem curta com os dados estruturados. Perguntas, prompts e respostas do modelo não são registradas nos logs.
+O painel **Assistente local** na dashboard usa essa rota. O modelo recebe a pergunta para escolher entre a ferramenta `system.get_metrics`, uma resposta textual curta sobre capacidades e limites do Projeto Home, ou a resposta de capacidade ainda não disponível. A escolha precisa ser JSON estrito; o backend valida essa decisão, executa somente a ferramenta registrada e devolve dados estruturados apenas quando houver consulta atual. Perguntas, prompts e respostas do modelo não são registrados nos logs.
 
 Para a primeira validação, o `llama-server` deve estar em execução separadamente e restrito ao loopback, com o perfil aprovado:
 

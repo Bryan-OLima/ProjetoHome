@@ -21,6 +21,10 @@ export const AssistantQueryResponseSchema = z.discriminatedUnion("kind", [
     kind: z.literal("unsupported"),
     message: z.string().min(1).max(240),
   }),
+  AssistantBaseResponseSchema.extend({
+    kind: z.literal("text"),
+    message: z.string().min(1).max(480),
+  }),
 ]);
 
 export type AssistantQueryRequest = z.infer<typeof AssistantQueryRequestSchema>;

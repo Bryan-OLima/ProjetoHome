@@ -22,16 +22,22 @@ const ToolDecisionSchema = z
     arguments: z.object({}).strict(),
   })
   .strict();
-const UnsupportedDecisionSchema = z
-  .object({ action: z.literal("unsupported") })
+const UnsupportedDecisionSchema = z.object({ action: z.literal("unsupported") }).strict();
+const TextDecisionSchema = z
+  .object({ action: z.literal("text"), message: z.string().trim().min(1).max(480) })
   .strict();
-const AssistantDecisionSchema = z.union([ToolDecisionSchema, UnsupportedDecisionSchema]);
+const AssistantDecisionSchema = z.union([
+  ToolDecisionSchema,
+  UnsupportedDecisionSchema,
+  TextDecisionSchema,
+]);
 
 const decisionPrompt = [
-  "/no_think You classify requests for a local home server assistant.",
-  "Reply with JSON only, without markdown or extra keys.",
-  "For current server health, uptime, memory, swap, storage, CPU temperature, or battery temperature, return {\"action\":\"tool\",\"tool\":\"system.get_metrics\",\"arguments\":{}}.",
-  "For every other request, return {\"action\":\"unsupported\"}.",
+  "/no_think Voc\u00ea \u00e9 o assistente local do Projeto Home.",
+  "Responda somente JSON v\u00e1lido, sem markdown e sem chaves extras.",
+  "Para perguntas sobre o estado atual do servidor, uptime, mem\u00f3ria, swap, armazenamento, temperatura da CPU ou bateria, incluindo por exemplo 'Como est\u00e1 a mem\u00f3ria do servidor?', responda {\"action\":\"tool\",\"tool\":\"system.get_metrics\",\"arguments\":{}}.",
+  "Para perguntas gerais sobre as capacidades, ferramentas, privacidade ou limites do Projeto Home, responda {\"action\":\"text\",\"message\":\"resposta curta em portugu\u00eas\"}. N\u00e3o afirme dados atuais nem a execu\u00e7\u00e3o de uma a\u00e7\u00e3o nessa resposta.",
+  "Para qualquer pedido fora das capacidades atuais, responda {\"action\":\"unsupported\"}.",
 ].join(" ");
 
 export interface QueryAssistant {
@@ -63,11 +69,22 @@ export function createQueryAssistant(dependencies: {
         if (decision.action === "unsupported") {
           const response = AssistantQueryResponseSchema.parse({
             kind: "unsupported",
-            message: "Esta consulta ainda não possui uma ferramenta autorizada.",
+            message: "Esta consulta ainda n\u00e3o possui uma ferramenta autorizada.",
             requestId: input.requestId,
             correlationId: input.correlationId,
           });
           logQuery(dependencies.logger, input, "success", startedAt, { result: "unsupported" });
+          return response;
+        }
+
+        if (decision.action === "text") {
+          const response = AssistantQueryResponseSchema.parse({
+            kind: "text",
+            message: decision.message,
+            requestId: input.requestId,
+            correlationId: input.correlationId,
+          });
+          logQuery(dependencies.logger, input, "success", startedAt, { result: "text" });
           return response;
         }
 
@@ -83,7 +100,7 @@ export function createQueryAssistant(dependencies: {
         );
         const response = AssistantQueryResponseSchema.parse({
           kind: "tool_result",
-          message: "Métricas atuais do servidor consultadas.",
+          message: "M\u00e9tricas atuais do servidor consultadas.",
           tool: decision.tool,
           data: result,
           requestId: input.requestId,
