@@ -10,6 +10,7 @@ import {
 import { applyEventRetention } from "./observability/apply-event-retention.js";
 import { DrizzleEventRepository } from "./observability/drizzle-event-repository.js";
 import { JsonlOperationalLogReader } from "./observability/jsonl-operational-log-reader.js";
+import { createStorageService } from "./storage/storage-service.js";
 
 const environmentFile = fileURLToPath(new URL("../.env", import.meta.url));
 if (existsSync(environmentFile)) {
@@ -32,6 +33,7 @@ const operationalLogReader = new JsonlOperationalLogReader({
   maxFiles: config.logMaxFiles,
   maxScanBytes: config.operationalLogQueryMaxBytes,
 });
+const storageService = createStorageService({ internalRoot: config.storageRoot });
 const logger = createOperationalLogger({
   writer: logWriter,
   onWriteFailure(error) {
@@ -110,6 +112,7 @@ const app = createApp({
   logger,
   eventRepository,
   operationalLogReader,
+  storageService,
 });
 
 const server = app.listen(config.port, config.host, () => {

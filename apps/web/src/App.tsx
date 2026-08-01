@@ -2,6 +2,7 @@ import { ServerStatusCard } from "./ServerStatusCard.js";
 import { LogsPage } from "./LogsPage.js";
 import { RecentActivityPanel } from "./RecentActivityPanel.js";
 import { SystemMetricsPanel } from "./SystemMetricsPanel.js";
+import { StoragePanel } from "./StoragePanel.js";
 
 export function App() {
   if (window.location.pathname === "/logs") {
@@ -22,6 +23,7 @@ export function App() {
       </header>
       <ServerStatusCard />
       <SystemMetricsPanel />
+      <StoragePanel />
       <RecentActivityPanel />
     </main>
   );

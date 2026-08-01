@@ -5,6 +5,7 @@ import {
   ListPersistedEventsResponseSchema,
   OperationalLogEventSchema,
   SystemMetricsResponseSchema,
+  StorageSummaryResponseSchema,
 } from "@projeto-home/contracts";
 import request from "supertest";
 import { afterEach, describe, expect, it } from "vitest";
@@ -14,6 +15,7 @@ import type { OperationalLogInput } from "../src/logging/operational-logger.js";
 import { DrizzleEventRepository } from "../src/observability/drizzle-event-repository.js";
 import type { OperationalLogReader } from "../src/observability/operational-log-reader.js";
 import type { SystemMetricsCollector } from "../src/monitoring/system-metrics.js";
+import type { StorageService } from "../src/storage/storage-service.js";
 import { createTestDatabase, createTestWebDist } from "./helpers.js";
 
 const cleanups: Array<() => void> = [];
@@ -166,6 +168,33 @@ describe("GET /health", () => {
       serverUptimeSeconds: 42,
       temperatures: { batteryCelsius: { status: "unavailable" } },
     });
+  });
+
+  it("returns only the configured internal storage location", async () => {
+    const testDatabase = createTestDatabase("storage-route");
+    cleanups.push(testDatabase.cleanup);
+    const storageService: StorageService = {
+      async getSummary() {
+        return {
+          locations: [{
+            id: "internal",
+            label: "Armazenamento interno",
+            status: "available",
+            totalBytes: { status: "available", value: 100 },
+            usedBytes: { status: "available", value: 25 },
+            availableBytes: { status: "available", value: 75 },
+          }],
+        };
+      },
+    };
+    const app = createApp({
+      database: testDatabase.database,
+      version: "test",
+      storageService,
+    });
+
+    const response = await request(app).get("/api/storage/locations").expect(200);
+    expect(StorageSummaryResponseSchema.parse(response.body).locations).toHaveLength(1);
   });
 
   it("rejects invalid persisted event filters with a safe client error", async () => {

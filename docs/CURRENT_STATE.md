@@ -2,7 +2,7 @@
 
 **Atualizado em:** 2026-08-01
 **Fase atual:** Etapa 4 — Storage service
-**Estado geral:** Etapas 1, 2 e 3 concluídas e validadas no S20 FE; Etapa 4 aguardando o primeiro incremento vertical
+**Estado geral:** Etapas 1, 2 e 3 concluídas e validadas no S20 FE; primeiro incremento da Etapa 4 validado localmente e pendente de ensaio no aparelho
 
 ## Objetivo da fase atual
 
@@ -92,14 +92,18 @@ Expor capacidade e disponibilidade de armazenamento com raízes autorizadas, sem
 - Validação local conjunta de atividade recente e alertas aprovada: typecheck dos três workspaces, 44 testes e build de produção.
 - Validação final da Etapa 3 aprovada no S20 FE em 2026-08-01: atividade recente exibida corretamente no dashboard e estado normal dos alertas básicos confirmado, sem degradação observada da interface ou do servidor.
 - Etapa 3 concluída: dashboard disponibiliza status, métricas sob demanda, atividade recente e alertas básicos; a coleta possui logging HTTP correlacionado e as fontes indisponíveis continuam isoladas na resposta.
+- Primeiro incremento da Etapa 4 implementado: raiz interna autorizada configurável por `STORAGE_ROOT` (padrão `./data/storage`), criada pelo backend quando necessário e sem caminho recebido do navegador.
+- `GET /api/storage/locations` expõe somente capacidade total, usada e disponível dessa raiz; resposta parcial segura indica indisponibilidade da raiz sem falhar a API.
+- Dashboard ampliado com cartão de armazenamento interno e estados de carregamento, indisponibilidade e erro.
+- Validação local da Etapa 4 aprovada: typecheck dos três workspaces, 47 testes e build de produção.
 
 ## Em andamento
 
-- Planejamento do primeiro incremento vertical da Etapa 4 — storage service.
+- Ensaio do primeiro incremento da Etapa 4 no S20 FE.
 
 ## Próximo passo recomendado
 
-Definir as raízes de armazenamento autorizadas e o primeiro endpoint de capacidade para a Etapa 4.
+Atualizar o S20 FE e validar a capacidade da raiz interna autorizada e seu cartão no dashboard.
 
 ## Melhoria futura registrada
 

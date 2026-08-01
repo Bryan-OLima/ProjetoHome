@@ -3,12 +3,14 @@ import {
   ListOperationalLogsResponseSchema,
   ListPersistedEventsResponseSchema,
   SystemMetricsResponseSchema,
+  StorageSummaryResponseSchema,
   type HealthResponse,
   type ListOperationalLogsQuery,
   type ListOperationalLogsResponse,
   type ListPersistedEventsQuery,
   type ListPersistedEventsResponse,
   type SystemMetricsResponse,
+  type StorageSummaryResponse,
 } from "@projeto-home/contracts";
 
 export async function getHealth(signal?: AbortSignal): Promise<HealthResponse> {
@@ -44,6 +46,10 @@ export async function getOperationalLogs(
 
 export async function getSystemMetrics(signal?: AbortSignal): Promise<SystemMetricsResponse> {
   return getJson("/api/monitoring/metrics", SystemMetricsResponseSchema, signal);
+}
+
+export async function getStorageSummary(signal?: AbortSignal): Promise<StorageSummaryResponse> {
+  return getJson("/api/storage/locations", StorageSummaryResponseSchema, signal);
 }
 
 async function getJson<T>(

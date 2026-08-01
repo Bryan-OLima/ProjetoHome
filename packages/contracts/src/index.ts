@@ -39,3 +39,9 @@ export {
   type NumericMetric,
   type SystemMetricsResponse,
 } from "./monitoring.js";
+export {
+  StorageLocationSchema,
+  StorageSummaryResponseSchema,
+  type StorageLocation,
+  type StorageSummaryResponse,
+} from "./storage.js";

@@ -156,7 +156,7 @@ Este documento define a ordem operacional de construção. Cada etapa deve resul
 
 ## Etapa 4 — Storage service
 
-**Estado:** próxima etapa; ainda não iniciada.
+**Estado:** ativa em 2026-08-01; primeiro incremento implementado localmente.
 
 ### Entregas
 

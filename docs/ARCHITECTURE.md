@@ -85,6 +85,10 @@ O endpoint `GET /api/monitoring/metrics` coleta dados somente quando é chamado;
 
 A temperatura da bateria é lida da zona térmica quando o Android a expõe. Percentual, estado de carga, saúde e corrente permanecem fora do escopo até uma decisão explícita de instalar e configurar o complemento Termux:API; esses dados não são necessários para a disponibilidade das demais métricas.
 
+### Storage service
+
+O endpoint `GET /api/storage/locations` não recebe caminhos do navegador. Nesta primeira fatia ele conhece somente a raiz interna `STORAGE_ROOT`, cujo padrão é `./data/storage` no armazenamento privado do Termux. O backend cria essa raiz gerenciada quando necessário e consulta seu filesystem para retornar capacidade total, usada e disponível. Falha de criação ou leitura torna apenas essa localização indisponível; não expõe caminhos absolutos, não inventaria arquivos e não permite acessar outras áreas do aparelho. MicroSD e inventário de conteúdo permanecem fora desta fatia.
+
 ### SQLite
 
 Armazena configurações não secretas, metadados, estados, histórico necessário e referências de auditoria. O backend é o único proprietário do arquivo e usa Drizzle ORM com o driver nativo `node:sqlite` como camada de acesso. Tokens e segredos exigem armazenamento protegido e não devem ser tratados como dados comuns.

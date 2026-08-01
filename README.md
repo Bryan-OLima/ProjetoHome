@@ -2,7 +2,7 @@
 
 Plataforma pessoal e local para transformar um Samsung Galaxy S20 FE em um servidor doméstico. O projeto reunirá dashboard, monitoramento, armazenamento, automações, integrações e um assistente com IA local, preservando privacidade e controle do usuário.
 
-> **Estado atual:** Etapas 1, 2 e 3 concluídas e validadas no S20 FE. O dashboard reúne status, métricas, atividade recente e alertas básicos; a próxima fase é o serviço de storage. Consulte o [estado operacional](./docs/CURRENT_STATE.md) antes de implementar.
+> **Estado atual:** Etapas 1, 2 e 3 concluídas e validadas no S20 FE. A Etapa 4 está em andamento com a capacidade da raiz interna autorizada; inventário de arquivos e microSD ainda não foram iniciados. Consulte o [estado operacional](./docs/CURRENT_STATE.md) antes de implementar.
 
 ## Objetivos
 
@@ -56,6 +56,7 @@ As versões validadas na prova do banco foram `drizzle-orm@1.0.0-rc.4` e `drizzl
 - A rota de métricas e os cartões do dashboard foram validados no S20 FE por SSH e no navegador pela rede local.
 - O dashboard também apresenta os cinco eventos operacionais mais recentes, sob demanda e sem polling; essa entrega foi validada no S20 FE.
 - Alertas básicos usam os limites iniciais de memória disponível abaixo de 15%, swap usada acima de 75%, armazenamento disponível abaixo de 10% e temperaturas a partir de 45 °C. O estado normal sem alertas foi validado no S20 FE.
+- `GET /api/storage/locations` mostra capacidade total, usada e disponível da única raiz de storage autorizada nesta fase, sem aceitar caminhos do navegador.
 - Senhas, tokens, segredos, cookies, sessões e conteúdo privado são removidos antes do registro.
 - As migrations são aplicadas automaticamente ao iniciar o backend. Um erro na migration impede a inicialização com schema parcial.
 
@@ -69,6 +70,7 @@ Copie `apps/server/.env.example` para `apps/server/.env` somente quando precisar
 | `HOST` | `127.0.0.1` | Interface onde o backend escuta. Use `0.0.0.0` apenas na rede local autorizada. |
 | `PORT` | `3000` | Porta do backend e do frontend compilado. |
 | `DATABASE_PATH` | `./data/projeto-home.sqlite` | Caminho do banco SQLite ativo no armazenamento interno. |
+| `STORAGE_ROOT` | `./data/storage` | Raiz interna autorizada para o serviço de storage. |
 | `LOG_DIRECTORY` | `./var/log` | Diretório dos logs operacionais JSONL. |
 | `LOG_MAX_BYTES` | `5242880` | Tamanho máximo do arquivo JSONL ativo antes da rotação. |
 | `LOG_MAX_FILES` | `7` | Quantidade máxima de arquivos JSONL, incluindo o ativo. |
@@ -295,4 +297,4 @@ O modelo GGUF não é versionado no repositório. Consulte as instruções, hash
 
 ## Próximo passo
 
-Planejar o primeiro incremento vertical da Etapa 4 — serviço de storage seguro.
+Validar no S20 FE a capacidade da raiz interna autorizada e o cartão de storage no dashboard.
