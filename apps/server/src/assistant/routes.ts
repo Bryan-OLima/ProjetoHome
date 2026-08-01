@@ -18,6 +18,7 @@ import {
   LocalAITimeoutError,
   LocalAIUnavailableError,
 } from "./local-ai-service.js";
+import { InvalidMathExpressionError } from "../tools/math-tool.js";
 
 type AssistantRequest = Request<
   NoRouteParams,
@@ -56,6 +57,9 @@ export function createAssistantRouter(dependencies: { queryAssistant: QueryAssis
       }
       if (error instanceof LocalAITimeoutError) {
         throw new HttpError(504, "local_ai_timeout", "Local AI did not respond in time.");
+      }
+      if (error instanceof InvalidMathExpressionError) {
+        throw new HttpError(400, "invalid_request", "Calculation is invalid.");
       }
       if (
         error instanceof InvalidLocalAIResponseError ||

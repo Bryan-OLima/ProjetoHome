@@ -1,14 +1,19 @@
 import {
   AssistantQueryResponseSchema,
+  MathEvaluationRequestSchema,
+  MathEvaluationResultSchema,
   SystemMetricsResponseSchema,
   type AssistantQueryRequest,
   type AssistantQueryResponse,
+  type MathEvaluationResult,
+  type SystemMetricsResponse,
 } from "@projeto-home/contracts";
 import { z } from "zod";
 import type { OperationalLogger } from "../logging/operational-logger.js";
 import type { ToolRegistry } from "../tools/registry.js";
 import {
   createAssistantResponsePrompt,
+  extractExplicitMathExpression,
   isExplicitMetricsQuery,
 } from "./assistant-context.js";
 import {
@@ -19,20 +24,32 @@ import {
   type LocalAIService,
 } from "./local-ai-service.js";
 
-const ToolDecisionSchema = z
+const MetricsToolDecisionSchema = z
   .object({
     action: z.literal("tool"),
     tool: z.literal("system.get_metrics"),
     arguments: z.object({}).strict(),
   })
   .strict();
+const MathToolDecisionSchema = z
+  .object({
+    action: z.literal("tool"),
+    tool: z.literal("math.evaluate"),
+    arguments: MathEvaluationRequestSchema,
+  })
+  .strict();
 const TextDecisionSchema = z.object({ action: z.literal("text") }).strict();
-const AssistantDecisionSchema = z.union([ToolDecisionSchema, TextDecisionSchema]);
+const AssistantDecisionSchema = z.union([
+  MetricsToolDecisionSchema,
+  MathToolDecisionSchema,
+  TextDecisionSchema,
+]);
 
 const decisionPrompt = [
   "/no_think Voce e o classificador do assistente local Projeto Home.",
   "Responda somente JSON valido, sem markdown e sem chaves extras.",
-  "Para perguntas sobre dados atuais do servidor, uptime, memoria, swap, armazenamento, espaco, temperatura da CPU ou bateria, incluindo 'Como esta a memoria e a temperatura do servidor?', responda {\"action\":\"tool\",\"tool\":\"system.get_metrics\",\"arguments\":{}}.",
+  "Para perguntas sobre dados atuais do servidor, uptime, memoria, swap, armazenamento, espaco, temperatura da CPU ou bateria, responda {\"action\":\"tool\",\"tool\":\"system.get_metrics\",\"arguments\":{}}.",
+  "Para calculos aritmeticos simples, extraia somente a expressao com numeros, parenteses, +, -, *, / ou % e responda {\"action\":\"tool\",\"tool\":\"math.evaluate\",\"arguments\":{\"expression\":\"2 + 2\"}}.",
   "Para qualquer outra pergunta, responda {\"action\":\"text\"}.",
 ].join(" ");
 
@@ -53,6 +70,15 @@ export function createQueryAssistant(dependencies: {
     async execute(input) {
       const startedAt = process.hrtime.bigint();
       try {
+        if (isExplicitMetricsQuery(input.query.query)) {
+          return executeMetricsQuery(dependencies, input, startedAt);
+        }
+
+        const explicitExpression = extractExplicitMathExpression(input.query.query);
+        if (explicitExpression) {
+          return executeMathQuery(dependencies, input, startedAt, explicitExpression);
+        }
+
         const decisionResponse = await dependencies.localAIService.generate({
           messages: [
             { role: "system", content: decisionPrompt },
@@ -61,9 +87,7 @@ export function createQueryAssistant(dependencies: {
           maxTokens: 96,
         });
         const decision = parseDecision(decisionResponse.content);
-        const shouldUseMetrics = decision.action === "tool" || isExplicitMetricsQuery(input.query.query);
-
-        if (!shouldUseMetrics) {
+        if (decision.action === "text") {
           const message = await generateGroundedText(dependencies.localAIService, input.query.query);
           const response = AssistantQueryResponseSchema.parse({
             kind: "text",
@@ -74,32 +98,10 @@ export function createQueryAssistant(dependencies: {
           logQuery(dependencies.logger, input, "success", startedAt, { result: "text" });
           return response;
         }
-
-        const result = SystemMetricsResponseSchema.parse(
-          await dependencies.toolRegistry.execute(
-            "system.get_metrics",
-            {},
-            {
-              requestId: input.requestId,
-              correlationId: input.correlationId,
-            },
-          ),
-        );
-        const message = await generateGroundedText(
-          dependencies.localAIService,
-          input.query.query,
-          result,
-        );
-        const response = AssistantQueryResponseSchema.parse({
-          kind: "tool_result",
-          message,
-          tool: "system.get_metrics",
-          data: result,
-          requestId: input.requestId,
-          correlationId: input.correlationId,
-        });
-        logQuery(dependencies.logger, input, "success", startedAt, { tool: "system.get_metrics" });
-        return response;
+        if (decision.tool === "system.get_metrics") {
+          return executeMetricsQuery(dependencies, input, startedAt);
+        }
+        return executeMathQuery(dependencies, input, startedAt, decision.arguments.expression);
       } catch (error) {
         logQuery(dependencies.logger, input, "failure", startedAt, {
           errorCode: getFailureCode(error),
@@ -108,6 +110,53 @@ export function createQueryAssistant(dependencies: {
       }
     },
   };
+}
+
+async function executeMetricsQuery(
+  dependencies: Parameters<typeof createQueryAssistant>[0],
+  input: Parameters<QueryAssistant["execute"]>[0],
+  startedAt: bigint,
+) {
+  const result = SystemMetricsResponseSchema.parse(await dependencies.toolRegistry.execute(
+    "system.get_metrics",
+    {},
+    { requestId: input.requestId, correlationId: input.correlationId },
+  ));
+  const message = await generateGroundedText(dependencies.localAIService, input.query.query, { metrics: result });
+  const response = AssistantQueryResponseSchema.parse({
+    kind: "tool_result",
+    message,
+    tool: "system.get_metrics",
+    data: result,
+    requestId: input.requestId,
+    correlationId: input.correlationId,
+  });
+  logQuery(dependencies.logger, input, "success", startedAt, { tool: "system.get_metrics" });
+  return response;
+}
+
+async function executeMathQuery(
+  dependencies: Parameters<typeof createQueryAssistant>[0],
+  input: Parameters<QueryAssistant["execute"]>[0],
+  startedAt: bigint,
+  expression: string,
+) {
+  const result = MathEvaluationResultSchema.parse(await dependencies.toolRegistry.execute(
+    "math.evaluate",
+    MathEvaluationRequestSchema.parse({ expression }),
+    { requestId: input.requestId, correlationId: input.correlationId },
+  ));
+  const message = await generateGroundedText(dependencies.localAIService, input.query.query, { calculation: result });
+  const response = AssistantQueryResponseSchema.parse({
+    kind: "tool_result",
+    message,
+    tool: "math.evaluate",
+    data: result,
+    requestId: input.requestId,
+    correlationId: input.correlationId,
+  });
+  logQuery(dependencies.logger, input, "success", startedAt, { tool: "math.evaluate" });
+  return response;
 }
 
 function getFailureCode(error: unknown): string {
@@ -145,14 +194,15 @@ function parseDecision(content: string) {
 async function generateGroundedText(
   localAIService: LocalAIService,
   query: string,
-  metrics?: ReturnType<typeof SystemMetricsResponseSchema.parse>,
+  data?: { metrics?: SystemMetricsResponse; calculation?: MathEvaluationResult },
 ): Promise<string> {
   const response = await localAIService.generate({
     messages: [{
       role: "system",
       content: createAssistantResponsePrompt({
         query,
-        ...(metrics === undefined ? {} : { metrics }),
+        ...(data?.metrics === undefined ? {} : { metrics: data.metrics }),
+        ...(data?.calculation === undefined ? {} : { calculation: data.calculation }),
       }),
     }],
     maxTokens: 128,

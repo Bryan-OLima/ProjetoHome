@@ -1,4 +1,7 @@
-import { SystemMetricsResponseSchema } from "@projeto-home/contracts";
+import {
+  MathEvaluationResultSchema,
+  SystemMetricsResponseSchema,
+} from "@projeto-home/contracts";
 import { describe, expect, it, vi } from "vitest";
 import {
   createQueryAssistant,
@@ -27,7 +30,7 @@ describe("query assistant", () => {
       .mockResolvedValueOnce({ content: "A mem\u00f3ria e a temperatura atuais est\u00e3o dispon\u00edveis nos dados consultados." });
     const assistant = createQueryAssistant({ localAIService: { generate }, toolRegistry: { execute }, logger: { log } });
 
-    const response = await assistant.execute({ query: { query: "Como est\u00e1 o servidor?" }, ...metadata });
+    const response = await assistant.execute({ query: { query: "Me mostre as metricas atuais." }, ...metadata });
 
     expect(response).toMatchObject({ kind: "tool_result", tool: "system.get_metrics", data: metrics });
     expect(execute).toHaveBeenCalledWith("system.get_metrics", {}, metadata);
@@ -37,7 +40,6 @@ describe("query assistant", () => {
   it("uses a safe metrics fallback for explicit current metric queries", async () => {
     const execute = vi.fn(async () => metrics);
     const generate = vi.fn()
-      .mockResolvedValueOnce({ content: "{\"action\":\"text\"}" })
       .mockResolvedValueOnce({ content: "Os dados atuais de mem\u00f3ria e temperatura foram consultados." });
     const assistant = createQueryAssistant({ localAIService: { generate }, toolRegistry: { execute }, logger: { log: vi.fn() } });
 
@@ -46,6 +48,19 @@ describe("query assistant", () => {
       ...metadata,
     })).resolves.toMatchObject({ kind: "tool_result" });
     expect(execute).toHaveBeenCalledOnce();
+    expect(generate).toHaveBeenCalledOnce();
+  });
+
+  it("evaluates explicit arithmetic locally before generating the response", async () => {
+    const calculation = MathEvaluationResultSchema.parse({ expression: "127 * 43", value: 5461 });
+    const execute = vi.fn(async () => calculation);
+    const generate = vi.fn().mockResolvedValue({ content: "127 vezes 43 e igual a 5461." });
+    const assistant = createQueryAssistant({ localAIService: { generate }, toolRegistry: { execute }, logger: { log: vi.fn() } });
+
+    await expect(assistant.execute({ query: { query: "Quanto e 127 x 43?" }, ...metadata }))
+      .resolves.toMatchObject({ kind: "tool_result", tool: "math.evaluate", data: calculation });
+    expect(execute).toHaveBeenCalledWith("math.evaluate", { expression: "127 * 43" }, metadata);
+    expect(generate).toHaveBeenCalledOnce();
   });
 
   it("generates grounded text without executing a tool for general questions", async () => {
@@ -70,7 +85,7 @@ describe("query assistant", () => {
       logger: { log },
     });
 
-    await expect(assistant.execute({ query: { query: "Como est\u00e1 o servidor?" }, ...metadata }))
+    await expect(assistant.execute({ query: { query: "Me explique as capacidades futuras." }, ...metadata }))
       .rejects.toBeInstanceOf(InvalidAssistantDecisionError);
     expect(execute).not.toHaveBeenCalled();
     expect(log).toHaveBeenCalledWith(expect.objectContaining({

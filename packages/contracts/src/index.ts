@@ -1,5 +1,11 @@
 export { AuditEventSchema, type AuditEvent } from "./audit.js";
 export {
+  MathEvaluationRequestSchema,
+  MathEvaluationResultSchema,
+  type MathEvaluationRequest,
+  type MathEvaluationResult,
+} from "./math.js";
+export {
   AssistantQueryRequestSchema,
   AssistantQueryResponseSchema,
   type AssistantQueryRequest,

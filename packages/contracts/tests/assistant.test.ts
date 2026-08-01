@@ -38,4 +38,15 @@ describe("assistant contracts", () => {
       correlationId: "b66aa9b5-3187-40c6-94e9-ca080618b1c7",
     }).success).toBe(true);
   });
+
+  it("accepts a local arithmetic tool result", () => {
+    expect(AssistantQueryResponseSchema.safeParse({
+      kind: "tool_result",
+      message: "O resultado de 2 + 2 e 4.",
+      tool: "math.evaluate",
+      data: { expression: "2 + 2", value: 4 },
+      requestId: "6a6818be-90b0-43e9-8391-b3efe3d3f094",
+      correlationId: "b66aa9b5-3187-40c6-94e9-ca080618b1c7",
+    }).success).toBe(true);
+  });
 });

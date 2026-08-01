@@ -7,6 +7,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { createApp } from "../src/app.js";
 import type { QueryAssistant } from "../src/assistant/query-assistant.js";
 import { LocalAIUnavailableError } from "../src/assistant/local-ai-service.js";
+import { InvalidMathExpressionError } from "../src/tools/math-tool.js";
 import { createTestDatabase } from "./helpers.js";
 
 const cleanups: Array<() => void> = [];
@@ -64,6 +65,26 @@ describe("POST /api/assistant/query", () => {
     expect(ErrorResponseSchema.parse(response.body).error).toMatchObject({
       code: "local_ai_unavailable",
       message: "Local AI is unavailable.",
+    });
+  });
+
+  it("rejects an invalid local calculation with a safe client error", async () => {
+    const testDatabase = createTestDatabase("assistant-invalid-calculation");
+    cleanups.push(testDatabase.cleanup);
+    const app = createApp({
+      database: testDatabase.database,
+      version: "test",
+      queryAssistant: { async execute() { throw new InvalidMathExpressionError(); } },
+    });
+
+    const response = await request(app)
+      .post("/api/assistant/query")
+      .send({ query: "Quanto e 10 / 0?" })
+      .expect(400);
+
+    expect(ErrorResponseSchema.parse(response.body).error).toMatchObject({
+      code: "invalid_request",
+      message: "Calculation is invalid.",
     });
   });
 });

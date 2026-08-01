@@ -1,9 +1,11 @@
 import type { SystemMetricsResponse } from "@projeto-home/contracts";
+import type { MathEvaluationResult } from "@projeto-home/contracts";
 
 const projectFacts = [
   "O Projeto Home e uma plataforma pessoal e local executada principalmente em um Samsung S20 FE com Termux.",
   "A dashboard atual mostra estado do servidor, logs, monitoramento e armazenamento interno.",
   "A unica consulta atual de dados em tempo real e system.get_metrics: uptime, memoria, swap, armazenamento e temperaturas disponiveis.",
+  "Calculos aritmeticos simples sao executados localmente pela ferramenta math.evaluate.",
   "Gmail, PC Agent, Steam, Sunshine, impressora 3D, automacoes e controle de ar-condicionado ainda nao estao disponiveis.",
   "A IA nao acessa diretamente shell, arquivos, banco, credenciais ou servicos externos.",
 ].join("\n");
@@ -11,10 +13,13 @@ const projectFacts = [
 export function createAssistantResponsePrompt(input: {
   query: string;
   metrics?: SystemMetricsResponse;
+  calculation?: MathEvaluationResult;
 }): string {
   const runtimeData = input.metrics
     ? `\nDados atuais autorizados:\n${JSON.stringify(input.metrics)}`
-    : "\nNao ha dados atuais autorizados nesta resposta.";
+    : input.calculation
+      ? `\nResultado matematico autorizado:\n${JSON.stringify(input.calculation)}`
+      : "\nNao ha dados atuais autorizados nesta resposta.";
 
   return [
     "/no_think Voce responde em portugues como o assistente do Projeto Home.",
@@ -45,4 +50,13 @@ export function isExplicitMetricsQuery(query: string): boolean {
     "saude do servidor",
     "status do servidor",
   ].some((term) => normalized.includes(term));
+}
+
+export function extractExplicitMathExpression(query: string): string | undefined {
+  const normalized = query
+    .replace(/(\d)\s*[x\u00d7]\s*(\d)/g, "$1 * $2")
+    .replace(/\u00f7/g, "/")
+    .replace(/,/g, ".");
+  const candidate = normalized.match(/[0-9][0-9.\s()+\-*/%]*/)?.[0]?.trim();
+  return candidate && /[+\-*/%]/.test(candidate) ? candidate : undefined;
 }

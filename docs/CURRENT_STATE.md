@@ -2,7 +2,7 @@
 
 **Atualizado em:** 2026-08-01
 **Fase atual:** Etapa 5 — IA local e registro de ferramentas
-**Estado geral:** Etapas 1, 2, 3 e 4 concluídas e validadas no S20 FE; primeiro incremento técnico da Etapa 5 concluído localmente
+**Estado geral:** Etapas 1, 2, 3 e 4 concluídas e validadas no S20 FE; assistente da Etapa 5 ampliado e validado localmente
 
 ## Objetivo da fase atual
 
@@ -118,6 +118,10 @@ Integrar a IA local por meio de ferramentas autorizadas, mantendo o backend como
 - Perguntas explícitas de memória, temperatura, CPU, bateria, swap, armazenamento, espaço, uptime ou estado do servidor possuem queda segura para a ferramenta de métricas mesmo se o classificador local falhar.
 - Prompt de decisão e textos do painel normalizados em português e UTF-8.
 - Validação local da manutenção do assistente aprovada: typecheck dos três workspaces, 70 testes e build de produção. A validação real com `llama.cpp` e S20 FE permanece pendente.
+- Consultas explícitas de métricas agora chamam `system.get_metrics` antes da classificação do modelo, eliminando a dependência de uma primeira resposta válida para dados atuais do servidor.
+- Ferramenta local `math.evaluate` implementada com expressão limitada a 128 caracteres, parser aritmético próprio, permissão declarada, timeout de 100 ms e sem acesso a `eval`, shell, rede, arquivos ou banco.
+- Consultas gerais permanecem flexíveis em linguagem natural, porém recebem apenas contexto factual curto do Projeto Home; métricas e cálculos recebem somente seus resultados sanitizados e estruturados.
+- Validação local da ampliação de flexibilidade aprovada: typecheck dos três workspaces e 75 testes. A validação real com `llama.cpp` e S20 FE permanece pendente.
 
 ## Em andamento
 
@@ -157,7 +161,6 @@ Nenhum bloqueio técnico conhecido.
 ## Não iniciar ainda
 
 - Gmail.
-- IA local.
 - PC Agent.
 - Steam.
 - Sunshine.

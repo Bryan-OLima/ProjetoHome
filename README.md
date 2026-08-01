@@ -148,9 +148,11 @@ Content-Type: application/json
 {"query":"Como está a memória e a temperatura do servidor?"}
 ```
 
-O painel **Assistente local** na dashboard usa essa rota. Primeiro, o modelo escolhe entre a ferramenta `system.get_metrics` e uma resposta textual. O backend valida essa decisão; consultas explícitas de métricas também possuem uma queda segura para a mesma ferramenta de leitura. Em seguida, o modelo produz uma resposta natural a partir de um contexto factual curto do Projeto Home e, quando aplicável, do resultado sanitizado da ferramenta. Ele não recebe documentos, logs, arquivos ou banco completos, nem pode inventar capacidades fora desse contexto. Perguntas, prompts e respostas do modelo não são registrados nos logs.
+O painel **Assistente local** na dashboard usa essa rota. Para perguntas gerais, o modelo pode responder com linguagem natural a partir de um contexto factual curto do Projeto Home. Para dados atuais, o backend usa somente ferramentas autorizadas; consultas explícitas de métricas ignoram a primeira decisão do modelo e chamam diretamente `system.get_metrics`. Cálculos aritméticos simples, como `127 x 43` ou `(2 + 3) * 4`, usam `math.evaluate`, um avaliador local limitado a números, parênteses e os operadores `+`, `-`, `*`, `/` e `%`. Ele não usa `eval`, shell, rede ou arquivos.
 
-Perguntas como “como está a temperatura da CPU?” ou “quanta memória disponível há?” acionam `system.get_metrics` mesmo se a classificação do modelo falhar. A resposta natural é acompanhada pela seção **Dados consultados**, que preserva os valores estruturados; se uma fonte do Android não estiver disponível, ela é indicada como indisponível em vez de ser estimada.
+Em seguida, o modelo transforma somente o contexto factual e o resultado sanitizado autorizado em uma resposta legível. Ele não recebe documentos, logs, arquivos ou banco completos, nem pode inventar capacidades fora desse contexto. Perguntas, prompts, argumentos e respostas do modelo não são registrados nos logs.
+
+Perguntas como “como está a temperatura da CPU?” ou “quanta memória disponível há?” acionam `system.get_metrics` mesmo se a classificação do modelo falhar. A resposta natural é acompanhada pela seção **Dados consultados**, que preserva os valores estruturados; se uma fonte do Android não estiver disponível, ela é indicada como indisponível em vez de ser estimada. Cálculos também mostram o resultado estruturado, permitindo conferir a expressão que foi avaliada.
 
 Para a primeira validação, o `llama-server` deve estar em execução separadamente e restrito ao loopback, com o perfil aprovado:
 
@@ -176,7 +178,7 @@ cd ~/ProjetoHome
 bash scripts/termux/supervisor.sh
 ```
 
-Abra a dashboard pela rede local e envie uma pergunta sobre estado, memória, swap, armazenamento ou temperatura do servidor. Confirme a mensagem de métricas, os dados estruturados e os eventos correlacionados `assistant.query` e `assistant.tool` em `/logs`. Para encerrar a validação, use `Ctrl+C` nas duas sessões; o carregamento sob demanda do modelo como parte da operação contínua ainda será definido após essa prova.
+Abra a dashboard pela rede local e envie perguntas sobre estado, memória, swap, armazenamento ou temperatura do servidor, além de um cálculo como `Quanto é 127 x 43?`. Confirme a mensagem, os dados estruturados e os eventos correlacionados `assistant.query` e `assistant.tool` em `/logs`. Para encerrar a validação, use `Ctrl+C` nas duas sessões; o carregamento sob demanda do modelo como parte da operação contínua ainda será definido após essa prova.
 
 ## Resultados das provas no S20 FE
 
@@ -345,4 +347,4 @@ O modelo GGUF não é versionado no repositório. Consulte as instruções, hash
 
 ## Próximo passo
 
-Planejar o primeiro incremento vertical da Etapa 5 — IA local e registro de ferramentas.
+Validar no S20 FE as consultas de métricas e cálculos locais do assistente com o runtime `llama.cpp` em loopback.
