@@ -28,7 +28,7 @@ const UnsupportedDecisionSchema = z
 const AssistantDecisionSchema = z.union([ToolDecisionSchema, UnsupportedDecisionSchema]);
 
 const decisionPrompt = [
-  "You classify requests for a local home server assistant.",
+  "/no_think You classify requests for a local home server assistant.",
   "Reply with JSON only, without markdown or extra keys.",
   "For current server health, uptime, memory, swap, storage, CPU temperature, or battery temperature, return {\"action\":\"tool\",\"tool\":\"system.get_metrics\",\"arguments\":{}}.",
   "For every other request, return {\"action\":\"unsupported\"}.",
