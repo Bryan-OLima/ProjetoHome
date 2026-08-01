@@ -55,6 +55,7 @@ As versões validadas na prova do banco foram `drizzle-orm@1.0.0-rc.4` e `drizzl
 - O dashboard raiz apresenta essas métricas com estados de carregamento, indisponibilidade e erro. Dados detalhados da bateria continuarão indisponíveis até uma futura decisão de usar Termux:API.
 - A rota de métricas e os cartões do dashboard foram validados no S20 FE por SSH e no navegador pela rede local.
 - O dashboard também apresenta os cinco eventos operacionais mais recentes, sob demanda e sem polling; essa entrega ainda aguarda validação no S20 FE.
+- Alertas básicos usam os limites iniciais de memória disponível abaixo de 15%, swap usada acima de 75%, armazenamento disponível abaixo de 10% e temperaturas a partir de 45 °C. Eles também aguardam validação no S20 FE.
 - Senhas, tokens, segredos, cookies, sessões e conteúdo privado são removidos antes do registro.
 - As migrations são aplicadas automaticamente ao iniciar o backend. Um erro na migration impede a inicialização com schema parcial.
 
@@ -294,4 +295,4 @@ O modelo GGUF não é versionado no repositório. Consulte as instruções, hash
 
 ## Próximo passo
 
-Validar a atividade recente no S20 FE e, em seguida, definir os limites dos alertas básicos da Etapa 3.
+Validar no S20 FE a atividade recente e os alertas básicos da Etapa 3.

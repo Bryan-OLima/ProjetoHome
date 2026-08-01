@@ -140,6 +140,7 @@ Este documento define a ordem operacional de construção. Cada etapa deve resul
 - Coletar uptime, memória, armazenamento, bateria e temperatura quando disponíveis.
 - Expor endpoint tipado de métricas.
 - Detectar métricas indisponíveis sem falhar a resposta inteira.
+- Alertar inicialmente quando a memória disponível estiver abaixo de 15%, swap usada acima de 75%, armazenamento disponível abaixo de 10% ou CPU/bateria atingir 45 °C. Esses limites são visuais e serão revisados após a validação no S20 FE.
 - **Implementação futura:** dados detalhados de bateria (percentual, estado de carga, saúde e corrente) dependem do complemento Termux:API. Até sua instalação aprovada, esses campos devem permanecer indisponíveis sem bloquear a temperatura da bateria ou as demais métricas.
 
 ### Frontend

@@ -88,14 +88,16 @@ Monitorar o S20 FE e apresentar as métricas essenciais no dashboard sem degrada
 - Validação do primeiro incremento da Etapa 3 aprovada no S20 FE: `GET /api/monitoring/metrics` retornou métricas válidas pelo SSH e os cartões do dashboard foram conferidos no navegador pela rede local com host modificado.
 - Atividade recente implementada no dashboard com até cinco eventos operacionais, estados de carregamento, vazio, indisponibilidade e erro, sem polling ou nova persistência.
 - Validação local da atividade recente aprovada: typecheck dos três workspaces, 43 testes e build de produção.
+- Alertas básicos implementados no painel de monitoramento, sem nova coleta: memória disponível abaixo de 15%, swap usada acima de 75%, armazenamento disponível abaixo de 10% e temperaturas de CPU ou bateria a partir de 45 °C.
+- Validação local conjunta de atividade recente e alertas aprovada: typecheck dos três workspaces, 44 testes e build de produção.
 
 ## Em andamento
 
-- Validação da atividade recente no S20 FE e definição dos limites dos alertas básicos.
+- Validação conjunta da atividade recente e dos alertas básicos no S20 FE.
 
 ## Próximo passo recomendado
 
-Validar a atividade recente no S20 FE e definir os limites dos alertas básicos.
+Validar a atividade recente e os alertas básicos no S20 FE.
 
 ## Melhoria futura registrada
 
