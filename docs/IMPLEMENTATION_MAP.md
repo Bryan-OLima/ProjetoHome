@@ -133,7 +133,7 @@ Este documento define a ordem operacional de construção. Cada etapa deve resul
 
 ## Etapa 3 — Monitoramento do S20 FE e dashboard
 
-**Estado:** ativa em 2026-07-28.
+**Estado:** concluída e validada no S20 FE em 2026-08-01.
 
 ### Backend
 
@@ -155,6 +155,8 @@ Este documento define a ordem operacional de construção. Cada etapa deve resul
 - A coleta de métricas possui logs e não degrada o serviço.
 
 ## Etapa 4 — Storage service
+
+**Estado:** próxima etapa; ainda não iniciada.
 
 ### Entregas
 

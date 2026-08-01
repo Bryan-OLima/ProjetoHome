@@ -2,7 +2,7 @@
 
 Plataforma pessoal e local para transformar um Samsung Galaxy S20 FE em um servidor doméstico. O projeto reunirá dashboard, monitoramento, armazenamento, automações, integrações e um assistente com IA local, preservando privacidade e controle do usuário.
 
-> **Estado atual:** Etapas 1 e 2 concluídas e validadas no S20 FE. A Etapa 3 está em andamento: as métricas principais e o painel de monitoramento foram validados no aparelho; atividade recente e alertas básicos permanecem pendentes. Consulte o [estado operacional](./docs/CURRENT_STATE.md) antes de implementar.
+> **Estado atual:** Etapas 1, 2 e 3 concluídas e validadas no S20 FE. O dashboard reúne status, métricas, atividade recente e alertas básicos; a próxima fase é o serviço de storage. Consulte o [estado operacional](./docs/CURRENT_STATE.md) antes de implementar.
 
 ## Objetivos
 
@@ -54,8 +54,8 @@ As versões validadas na prova do banco foram `drizzle-orm@1.0.0-rc.4` e `drizzl
 - `GET /api/monitoring/metrics` coleta sob demanda uptime do processo, memória, swap, armazenamento e temperaturas expostas pelo aparelho, sem falhar a resposta quando alguma fonte está indisponível.
 - O dashboard raiz apresenta essas métricas com estados de carregamento, indisponibilidade e erro. Dados detalhados da bateria continuarão indisponíveis até uma futura decisão de usar Termux:API.
 - A rota de métricas e os cartões do dashboard foram validados no S20 FE por SSH e no navegador pela rede local.
-- O dashboard também apresenta os cinco eventos operacionais mais recentes, sob demanda e sem polling; essa entrega ainda aguarda validação no S20 FE.
-- Alertas básicos usam os limites iniciais de memória disponível abaixo de 15%, swap usada acima de 75%, armazenamento disponível abaixo de 10% e temperaturas a partir de 45 °C. Eles também aguardam validação no S20 FE.
+- O dashboard também apresenta os cinco eventos operacionais mais recentes, sob demanda e sem polling; essa entrega foi validada no S20 FE.
+- Alertas básicos usam os limites iniciais de memória disponível abaixo de 15%, swap usada acima de 75%, armazenamento disponível abaixo de 10% e temperaturas a partir de 45 °C. O estado normal sem alertas foi validado no S20 FE.
 - Senhas, tokens, segredos, cookies, sessões e conteúdo privado são removidos antes do registro.
 - As migrations são aplicadas automaticamente ao iniciar o backend. Um erro na migration impede a inicialização com schema parcial.
 
@@ -295,4 +295,4 @@ O modelo GGUF não é versionado no repositório. Consulte as instruções, hash
 
 ## Próximo passo
 
-Validar no S20 FE a atividade recente e os alertas básicos da Etapa 3.
+Planejar o primeiro incremento vertical da Etapa 4 — serviço de storage seguro.

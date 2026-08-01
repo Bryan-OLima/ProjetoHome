@@ -1,12 +1,12 @@
 # Estado Atual do Projeto
 
-**Atualizado em:** 2026-07-28  
-**Fase atual:** Etapa 3 — Monitoramento do S20 FE e dashboard
-**Estado geral:** Etapas 1 e 2 concluídas e validadas no S20 FE; métricas principais da Etapa 3 também validadas no aparelho
+**Atualizado em:** 2026-08-01
+**Fase atual:** Etapa 4 — Storage service
+**Estado geral:** Etapas 1, 2 e 3 concluídas e validadas no S20 FE; Etapa 4 aguardando o primeiro incremento vertical
 
 ## Objetivo da fase atual
 
-Monitorar o S20 FE e apresentar as métricas essenciais no dashboard sem degradar o serviço.
+Expor capacidade e disponibilidade de armazenamento com raízes autorizadas, sem aceitar caminhos arbitrários.
 
 ## Concluído
 
@@ -90,14 +90,16 @@ Monitorar o S20 FE e apresentar as métricas essenciais no dashboard sem degrada
 - Validação local da atividade recente aprovada: typecheck dos três workspaces, 43 testes e build de produção.
 - Alertas básicos implementados no painel de monitoramento, sem nova coleta: memória disponível abaixo de 15%, swap usada acima de 75%, armazenamento disponível abaixo de 10% e temperaturas de CPU ou bateria a partir de 45 °C.
 - Validação local conjunta de atividade recente e alertas aprovada: typecheck dos três workspaces, 44 testes e build de produção.
+- Validação final da Etapa 3 aprovada no S20 FE em 2026-08-01: atividade recente exibida corretamente no dashboard e estado normal dos alertas básicos confirmado, sem degradação observada da interface ou do servidor.
+- Etapa 3 concluída: dashboard disponibiliza status, métricas sob demanda, atividade recente e alertas básicos; a coleta possui logging HTTP correlacionado e as fontes indisponíveis continuam isoladas na resposta.
 
 ## Em andamento
 
-- Validação conjunta da atividade recente e dos alertas básicos no S20 FE.
+- Planejamento do primeiro incremento vertical da Etapa 4 — storage service.
 
 ## Próximo passo recomendado
 
-Validar a atividade recente e os alertas básicos no S20 FE.
+Definir as raízes de armazenamento autorizadas e o primeiro endpoint de capacidade para a Etapa 4.
 
 ## Melhoria futura registrada
 
