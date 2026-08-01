@@ -2,7 +2,7 @@
 
 Plataforma pessoal e local para transformar um Samsung Galaxy S20 FE em um servidor doméstico. O projeto reunirá dashboard, monitoramento, armazenamento, automações, integrações e um assistente com IA local, preservando privacidade e controle do usuário.
 
-> **Estado atual:** Etapas 1, 2 e 3 concluídas e validadas no S20 FE. A Etapa 4 está em andamento com a capacidade da raiz interna autorizada; inventário de arquivos e microSD ainda não foram iniciados. Consulte o [estado operacional](./docs/CURRENT_STATE.md) antes de implementar.
+> **Estado atual:** Etapas 1, 2, 3 e 4 concluídas e validadas no S20 FE. O storage interno possui capacidade e inventário seguro; suporte a microSD fica para quando houver um cartão instalado. Consulte o [estado operacional](./docs/CURRENT_STATE.md) antes de implementar.
 
 ## Objetivos
 
@@ -57,7 +57,8 @@ As versões validadas na prova do banco foram `drizzle-orm@1.0.0-rc.4` e `drizzl
 - O dashboard também apresenta os cinco eventos operacionais mais recentes, sob demanda e sem polling; essa entrega foi validada no S20 FE.
 - Alertas básicos usam os limites iniciais de memória disponível abaixo de 15%, swap usada acima de 75%, armazenamento disponível abaixo de 10% e temperaturas a partir de 45 °C. O estado normal sem alertas foi validado no S20 FE.
 - `GET /api/storage/locations` mostra capacidade total, usada e disponível da única raiz de storage autorizada nesta fase, sem aceitar caminhos do navegador.
-- `GET /api/storage/internal/items` lista até 50 metadados de itens da raiz autorizada, sem recursão, leitura de conteúdo ou caminho informado pelo navegador; o inventário ainda aguarda validação no S20 FE.
+- `GET /api/storage/internal/items` lista até 50 metadados de itens da raiz autorizada, sem recursão, leitura de conteúdo ou caminho informado pelo navegador; o inventário foi validado no S20 FE.
+- Não há microSD instalado no aparelho atual. Uma segunda raiz autorizada para microSD será implementada somente após o cartão estar presente e seu ponto de montagem ser validado.
 - Senhas, tokens, segredos, cookies, sessões e conteúdo privado são removidos antes do registro.
 - As migrations são aplicadas automaticamente ao iniciar o backend. Um erro na migration impede a inicialização com schema parcial.
 
@@ -298,4 +299,4 @@ O modelo GGUF não é versionado no repositório. Consulte as instruções, hash
 
 ## Próximo passo
 
-Validar no S20 FE o inventário seguro da raiz interna autorizada.
+Planejar o primeiro incremento vertical da Etapa 5 — IA local e registro de ferramentas.

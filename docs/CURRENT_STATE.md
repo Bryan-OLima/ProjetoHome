@@ -1,12 +1,12 @@
 # Estado Atual do Projeto
 
 **Atualizado em:** 2026-08-01
-**Fase atual:** Etapa 4 — Storage service
-**Estado geral:** Etapas 1, 2 e 3 concluídas e validadas no S20 FE; capacidade do primeiro incremento da Etapa 4 validada no aparelho e inventário seguro validado localmente
+**Fase atual:** Etapa 5 — IA local e registro de ferramentas
+**Estado geral:** Etapas 1, 2, 3 e 4 concluídas e validadas no S20 FE; Etapa 5 aguardando primeiro incremento vertical
 
 ## Objetivo da fase atual
 
-Expor capacidade e disponibilidade de armazenamento com raízes autorizadas, sem aceitar caminhos arbitrários.
+Integrar a IA local por meio de ferramentas autorizadas, mantendo o backend como fronteira de permissão e execução.
 
 ## Concluído
 
@@ -99,19 +99,22 @@ Expor capacidade e disponibilidade de armazenamento com raízes autorizadas, sem
 - Validação do primeiro incremento da Etapa 4 aprovada no S20 FE: `GET /api/storage/locations` e o cartão de armazenamento interno responderam normalmente.
 - Inventário seguro da raiz interna implementado em `GET /api/storage/internal/items`: máximo de 100 itens por consulta, raiz fixa, sem recursão, sem leitura de conteúdo e sem seguir links simbólicos.
 - Validação local do inventário aprovada: typecheck dos três workspaces, 48 testes e build de produção, incluindo rejeição de parâmetro de caminho arbitrário.
+- Validação final da Etapa 4 aprovada no S20 FE em 2026-08-01: inventário da raiz interna exibido normalmente pelo endpoint e pelo dashboard.
+- Etapa 4 concluída: armazenamento interno possui capacidade e inventário seguro; não há microSD instalado no aparelho atual.
 
 ## Em andamento
 
-- Ensaio do inventário seguro da raiz interna no S20 FE.
+- Planejamento do primeiro incremento vertical da Etapa 5 — IA local e registro de ferramentas.
 
 ## Próximo passo recomendado
 
-Atualizar o S20 FE e validar o inventário seguro da raiz interna.
+Definir a primeira ferramenta de leitura autorizada e o contrato do serviço de IA local.
 
 ## Melhoria futura registrada
 
 - Quando houver um catálogo confiável de serviços observados, evoluir o filtro de serviço da página `/logs` de texto livre para dropdown dinâmico. Essa melhoria não bloqueia a conclusão da Etapa 2.
 - Dados detalhados de bateria — percentual, estado de carga, saúde e corrente — ficam para futura implementação após decisão explícita de instalar e configurar o complemento Termux:API. A ausência desse complemento não bloqueia a temperatura térmica já exposta pelo Android nem as demais métricas.
+- Suporte a microSD fica para implementação futura: o S20 FE atual não possui cartão instalado. Quando houver um, definir explicitamente sua raiz autorizada, validar montagem, capacidade e inventário antes de expô-lo pela API.
 
 ## Primeira entrega de código implementada
 

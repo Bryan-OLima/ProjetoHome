@@ -156,7 +156,7 @@ Este documento define a ordem operacional de construção. Cada etapa deve resul
 
 ## Etapa 4 — Storage service
 
-**Estado:** ativa em 2026-08-01; primeiro incremento implementado localmente.
+**Estado:** concluída e validada no S20 FE em 2026-08-01.
 
 ### Entregas
 
@@ -164,6 +164,7 @@ Este documento define a ordem operacional de construção. Cada etapa deve resul
 - Expor capacidade, uso e disponibilidade.
 - Criar inventário seguro sem permitir caminhos arbitrários.
 - Preparar abstração para armazenamento interno e microSD.
+- **Implementação futura:** o aparelho atual não possui microSD instalado. Uma segunda raiz autorizada só será adicionada após validar ponto de montagem, capacidade e inventário no S20 FE.
 
 ### Pronto quando
 

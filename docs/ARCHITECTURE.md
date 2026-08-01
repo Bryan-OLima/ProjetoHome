@@ -91,6 +91,8 @@ O endpoint `GET /api/storage/locations` não recebe caminhos do navegador. Nesta
 
 O inventário complementar `GET /api/storage/internal/items` também usa somente essa raiz fixa. Ele lista no máximo 100 entradas diretas, ordenadas por nome, com nome, tipo, tamanho e data de modificação; não recebe caminho, não percorre subdiretórios, não lê conteúdo e identifica links simbólicos sem segui-los.
 
+O microSD não está instalado no aparelho atual e não participa do runtime. Quando estiver disponível, será adicionado como uma segunda raiz autorizada após validação explícita de montagem, capacidade e inventário; o banco SQLite ativo continuará exclusivamente no armazenamento interno do Termux.
+
 ### SQLite
 
 Armazena configurações não secretas, metadados, estados, histórico necessário e referências de auditoria. O backend é o único proprietário do arquivo e usa Drizzle ORM com o driver nativo `node:sqlite` como camada de acesso. Tokens e segredos exigem armazenamento protegido e não devem ser tratados como dados comuns.
