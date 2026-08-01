@@ -20,6 +20,8 @@ import { createMonitoringRouter } from "./monitoring/routes.js";
 import { createSystemMetricsCollector, type SystemMetricsCollector } from "./monitoring/system-metrics.js";
 import { createStorageRouter } from "./storage/routes.js";
 import { createStorageService, type StorageService } from "./storage/storage-service.js";
+import { createAssistantRouter } from "./assistant/routes.js";
+import type { QueryAssistant } from "./assistant/query-assistant.js";
 import { HttpError } from "./http-error.js";
 import {
   noopOperationalLogger,
@@ -38,6 +40,7 @@ export interface AppOptions {
   operationalLogReader?: OperationalLogReader;
   systemMetricsCollector?: SystemMetricsCollector;
   storageService?: StorageService;
+  queryAssistant?: QueryAssistant;
 }
 
 export function createApp(options: AppOptions) {
@@ -101,6 +104,9 @@ export function createApp(options: AppOptions) {
   app.use("/api/observability", observabilityRouter);
   app.use("/api/monitoring", createMonitoringRouter({ collector: systemMetricsCollector }));
   app.use("/api/storage", createStorageRouter({ service: storageService }));
+  if (options.queryAssistant) {
+    app.use("/api/assistant", createAssistantRouter({ queryAssistant: options.queryAssistant }));
+  }
 
   if (options.webDistPath && existsSync(options.webDistPath)) {
     app.use(express.static(options.webDistPath));

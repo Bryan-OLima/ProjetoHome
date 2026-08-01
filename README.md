@@ -137,7 +137,45 @@ O perfil padrão validado usa:
 
 Qualquer exposição do servidor de IA à rede exige autenticação e CORS restritivo. O Qwen3-4B não pode ser requisito de fluxos essenciais antes de uma prova própria no aparelho.
 
-O backend já possui o contrato substituível `LocalAIService`, que chama apenas `/v1/chat/completions` no `llama.cpp` em loopback, limita entrada, saída e tempo de resposta e trata runtime indisponível sem expor detalhes internos. Ele ainda não inicia o modelo nem disponibiliza uma rota de consulta: essa ligação será feita junto da orquestração das ferramentas autorizadas.
+O backend possui o contrato substituível `LocalAIService`, que chama apenas `/v1/chat/completions` no `llama.cpp` em loopback, limita entrada, saída e tempo de resposta e trata runtime indisponível sem expor detalhes internos. Ele não inicia o modelo: a estratégia operacional de carregamento sob demanda será definida após a primeira validação ponta a ponta.
+
+### Consulta ao assistente
+
+```text
+POST /api/assistant/query
+Content-Type: application/json
+
+{"query":"Como está a memória e a temperatura do servidor?"}
+```
+
+O painel **Assistente local** na dashboard usa essa rota. O modelo recebe a pergunta apenas para escolher entre a ferramenta `system.get_metrics` e a resposta de capacidade ainda não disponível. A escolha precisa ser JSON estrito; o backend valida essa decisão, executa somente a ferramenta registrada e devolve uma mensagem curta com os dados estruturados. Perguntas, prompts e respostas do modelo não são registradas nos logs.
+
+Para a primeira validação, o `llama-server` deve estar em execução separadamente e restrito ao loopback, com o perfil aprovado:
+
+```bash
+llama-server -m ~/ProjetoHome/models/Qwen_Qwen3-1.7B-Q4_K_M.gguf -c 4096 -t 4 -ngl 0 --host 127.0.0.1 --port 8080
+```
+
+O processo principal continua funcional se esse runtime não estiver ativo; a consulta retorna indisponibilidade segura.
+
+### Validação manual no Termux
+
+Para validar a consulta ponta a ponta no S20 FE, abra duas sessões SSH. Na primeira, após atualizar, instalar dependências e executar o build, inicie o runtime local:
+
+```bash
+cd ~/ProjetoHome
+mkdir -p var/log
+llama-server -m "$HOME/ProjetoHome/models/Qwen_Qwen3-1.7B-Q4_K_M.gguf" -c 4096 -t 4 -ngl 0 --host 127.0.0.1 --port 8080 2>&1 | tee var/log/llama-server.log
+```
+
+Na segunda sessão, inicie o processo principal normalmente:
+
+```bash
+cd ~/ProjetoHome
+bash scripts/termux/supervisor.sh
+```
+
+Abra a dashboard pela rede local e envie uma pergunta sobre estado, memória, swap, armazenamento ou temperatura do servidor. Confirme a mensagem de métricas, os dados estruturados e os eventos correlacionados `assistant.query` e `assistant.tool` em `/logs`. Para encerrar a validação, use `Ctrl+C` nas duas sessões; o carregamento sob demanda do modelo como parte da operação contínua ainda será definido após essa prova.
 
 ## Resultados das provas no S20 FE
 

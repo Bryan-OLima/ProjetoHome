@@ -109,14 +109,18 @@ Integrar a IA local por meio de ferramentas autorizadas, mantendo o backend como
 - O serviço limita mensagens, caracteres de entrada, tokens de saída, bytes da resposta e tempo de execução; runtime indisponível, timeout e resposta inválida falham de modo isolado.
 - Configurações do runtime local registradas em ambiente, com perfil padrão Qwen3-1.7B Q4_K_M, timeout de 60 segundos, 8.192 caracteres de entrada e 128 tokens de saída.
 - Validação local do segundo incremento técnico da Etapa 5 aprovada: typecheck dos três workspaces, 58 testes e build de produção.
+- Primeira consulta ponta a ponta implementada: `POST /api/assistant/query` valida a pergunta, cria `correlationId`, pede ao modelo uma decisão JSON estrita e chama exclusivamente `system.get_metrics` quando autorizado.
+- Dashboard ampliado com o painel Assistente local, entrada em linguagem natural, resposta textual, dados JSON consultados e estado seguro de indisponibilidade.
+- Perguntas, prompts, argumentos e respostas da IA não seguem para os logs; são registrados apenas metadados correlacionados de consulta e ferramenta.
+- Validação local da consulta ponta a ponta aprovada: typecheck dos três workspaces, 68 testes e build de produção. A validação real com `llama.cpp` e S20 FE permanece pendente.
 
 ## Em andamento
 
-- Orquestração da primeira consulta ponta a ponta: interpretar uma intenção limitada, executar `system.get_metrics` pelo registro e responder de forma segura.
+- Validar no S20 FE o fluxo completo da consulta em linguagem natural com o `llama-server` em loopback.
 
 ## Próximo passo recomendado
 
-Criar o caso de uso de consulta do assistente, conectando `LocalAIService` ao registro de ferramentas sem expor executor público genérico.
+Validar a primeira consulta do assistente no S20 FE e registrar o procedimento operacional de início do modelo sob demanda.
 
 ## Melhoria futura registrada
 

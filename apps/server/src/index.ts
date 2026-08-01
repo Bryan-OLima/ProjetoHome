@@ -11,6 +11,10 @@ import { applyEventRetention } from "./observability/apply-event-retention.js";
 import { DrizzleEventRepository } from "./observability/drizzle-event-repository.js";
 import { JsonlOperationalLogReader } from "./observability/jsonl-operational-log-reader.js";
 import { createStorageService } from "./storage/storage-service.js";
+import { createSystemMetricsCollector } from "./monitoring/system-metrics.js";
+import { createLocalAIService } from "./assistant/local-ai-service.js";
+import { createQueryAssistant } from "./assistant/query-assistant.js";
+import { createApplicationToolRegistry } from "./tools/create-tool-registry.js";
 
 const environmentFile = fileURLToPath(new URL("../.env", import.meta.url));
 if (existsSync(environmentFile)) {
@@ -66,6 +70,16 @@ const logger = createOperationalLogger({
     );
   },
 });
+const systemMetricsCollector = createSystemMetricsCollector();
+const toolRegistry = createApplicationToolRegistry({ logger, systemMetricsCollector });
+const localAIService = createLocalAIService({
+  baseUrl: config.localAiBaseUrl,
+  model: config.localAiModel,
+  timeoutMs: config.localAiTimeoutMs,
+  maxInputChars: config.localAiMaxInputChars,
+  maxOutputTokens: config.localAiMaxOutputTokens,
+});
+const queryAssistant = createQueryAssistant({ localAIService, toolRegistry, logger });
 try {
   const retention = applyEventRetention(eventRepository, {
     auditRetentionDays: config.auditRetentionDays,
@@ -113,6 +127,8 @@ const app = createApp({
   eventRepository,
   operationalLogReader,
   storageService,
+  systemMetricsCollector,
+  queryAssistant,
 });
 
 const server = app.listen(config.port, config.host, () => {

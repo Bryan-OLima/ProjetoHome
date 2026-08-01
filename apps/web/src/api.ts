@@ -1,10 +1,13 @@
 import {
+  AssistantQueryRequestSchema,
+  AssistantQueryResponseSchema,
   HealthResponseSchema,
   ListOperationalLogsResponseSchema,
   ListPersistedEventsResponseSchema,
   SystemMetricsResponseSchema,
   StorageSummaryResponseSchema,
   type HealthResponse,
+  type AssistantQueryResponse,
   type ListOperationalLogsQuery,
   type ListOperationalLogsResponse,
   type ListPersistedEventsQuery,
@@ -14,6 +17,19 @@ import {
   ListStorageItemsResponseSchema,
   type ListStorageItemsResponse,
 } from "@projeto-home/contracts";
+
+export async function queryAssistant(query: string): Promise<AssistantQueryResponse> {
+  const request = AssistantQueryRequestSchema.parse({ query });
+  const response = await fetch("/api/assistant/query", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(request),
+  });
+  if (!response.ok) {
+    throw new Error(`assistant_request_failed:${response.status}`);
+  }
+  return AssistantQueryResponseSchema.parse(await response.json());
+}
 
 export async function getHealth(signal?: AbortSignal): Promise<HealthResponse> {
   const response = await fetch("/health", signal ? { signal } : undefined);

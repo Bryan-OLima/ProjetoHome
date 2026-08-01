@@ -1,5 +1,11 @@
 export { AuditEventSchema, type AuditEvent } from "./audit.js";
 export {
+  AssistantQueryRequestSchema,
+  AssistantQueryResponseSchema,
+  type AssistantQueryRequest,
+  type AssistantQueryResponse,
+} from "./assistant.js";
+export {
   ErrorResponseSchema,
   HealthResponseSchema,
   type ErrorResponse,
