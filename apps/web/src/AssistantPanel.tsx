@@ -48,12 +48,6 @@ export function AssistantPanel() {
       {assistant.state === "success" && (
         <div className="assistant-panel__result">
           <strong>{assistant.response.message}</strong>
-          {assistant.response.kind === "tool_result" && (
-            <details>
-              <summary>{"Detalhes técnicos ("}{assistant.response.tool}{")"}</summary>
-              <pre>{JSON.stringify(assistant.response.data, null, 2)}</pre>
-            </details>
-          )}
         </div>
       )}
     </section>

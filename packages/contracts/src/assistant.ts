@@ -1,6 +1,4 @@
 import { z } from "zod";
-import { SystemMetricsResponseSchema } from "./monitoring.js";
-import { MathEvaluationResultSchema } from "./math.js";
 
 export const AssistantQueryRequestSchema = z
   .object({ query: z.string().trim().min(1).max(4_096) })
@@ -9,20 +7,12 @@ export const AssistantQueryRequestSchema = z
 const AssistantBaseResponseSchema = z.object({
   requestId: z.string().uuid(),
   correlationId: z.string().uuid(),
-});
+}).strict();
 
-export const AssistantQueryResponseSchema = z.union([
-  AssistantBaseResponseSchema.extend({
-    kind: z.literal("tool_result"),
-    message: z.string().min(1).max(240),
-    tool: z.literal("system.get_metrics"),
-    data: SystemMetricsResponseSchema,
-  }),
+export const AssistantQueryResponseSchema = z.discriminatedUnion("kind", [
   AssistantBaseResponseSchema.extend({
     kind: z.literal("tool_result"),
     message: z.string().min(1).max(480),
-    tool: z.literal("math.evaluate"),
-    data: MathEvaluationResultSchema,
   }),
   AssistantBaseResponseSchema.extend({
     kind: z.literal("text"),

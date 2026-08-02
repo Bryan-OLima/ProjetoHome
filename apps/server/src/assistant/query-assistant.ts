@@ -121,8 +121,6 @@ async function executeMetricsQuery(
   const response = AssistantQueryResponseSchema.parse({
     kind: "tool_result",
     message,
-    tool: "system.get_metrics",
-    data: result,
     requestId: input.requestId,
     correlationId: input.correlationId,
   });
@@ -145,8 +143,6 @@ async function executeMathQuery(
   const response = AssistantQueryResponseSchema.parse({
     kind: "tool_result",
     message,
-    tool: "math.evaluate",
-    data: result,
     requestId: input.requestId,
     correlationId: input.correlationId,
   });

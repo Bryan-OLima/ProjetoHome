@@ -4,25 +4,18 @@ import {
   AssistantQueryResponseSchema,
 } from "../src/index.js";
 
-describe("assistant contracts", () => {
-  it("accepts a validated tool result without the original query", () => {
-    const result = AssistantQueryResponseSchema.safeParse({
-      kind: "tool_result",
-      message: "Métricas atuais do servidor consultadas.",
-      tool: "system.get_metrics",
-      data: {
-        collectedAt: "2026-08-01T12:00:00.000Z",
-        serverUptimeSeconds: 42,
-        memory: { totalBytes: { status: "available", value: 100 }, availableBytes: { status: "available", value: 50 } },
-        swap: { totalBytes: { status: "unavailable" }, usedBytes: { status: "unavailable" } },
-        storage: { totalBytes: { status: "available", value: 100 }, availableBytes: { status: "available", value: 50 } },
-        temperatures: { cpuCelsius: { status: "available", value: 36 }, batteryCelsius: { status: "unavailable" } },
-      },
-      requestId: "6a6818be-90b0-43e9-8391-b3efe3d3f094",
-      correlationId: "b66aa9b5-3187-40c6-94e9-ca080618b1c7",
-    });
+const identifiers = {
+  requestId: "6a6818be-90b0-43e9-8391-b3efe3d3f094",
+  correlationId: "b66aa9b5-3187-40c6-94e9-ca080618b1c7",
+};
 
-    expect(result.success).toBe(true);
+describe("assistant contracts", () => {
+  it("accepts a public tool result without internal data", () => {
+    expect(AssistantQueryResponseSchema.safeParse({
+      kind: "tool_result",
+      message: "Metricas atuais do servidor consultadas.",
+      ...identifiers,
+    }).success).toBe(true);
   });
 
   it("rejects blank and oversized queries", () => {
@@ -34,19 +27,16 @@ describe("assistant contracts", () => {
     expect(AssistantQueryResponseSchema.safeParse({
       kind: "text",
       message: "Posso explicar as capacidades atuais do Projeto Home.",
-      requestId: "6a6818be-90b0-43e9-8391-b3efe3d3f094",
-      correlationId: "b66aa9b5-3187-40c6-94e9-ca080618b1c7",
+      ...identifiers,
     }).success).toBe(true);
   });
 
-  it("accepts a local arithmetic tool result", () => {
+  it("rejects internal tool data in a public response", () => {
     expect(AssistantQueryResponseSchema.safeParse({
       kind: "tool_result",
       message: "O resultado de 2 + 2 e 4.",
-      tool: "math.evaluate",
       data: { expression: "2 + 2", value: 4 },
-      requestId: "6a6818be-90b0-43e9-8391-b3efe3d3f094",
-      correlationId: "b66aa9b5-3187-40c6-94e9-ca080618b1c7",
-    }).success).toBe(true);
+      ...identifiers,
+    }).success).toBe(false);
   });
 });

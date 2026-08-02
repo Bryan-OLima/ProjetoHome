@@ -29,7 +29,9 @@ describe("query assistant", () => {
 
     const response = await assistant.execute({ query: { query: "Me mostre o uptime atual." }, ...metadata });
 
-    expect(response).toMatchObject({ kind: "tool_result", tool: "system.get_metrics", data: metrics });
+    expect(response).toMatchObject({ kind: "tool_result" });
+    expect(response).not.toHaveProperty("tool");
+    expect(response).not.toHaveProperty("data");
     expect(response.message).toBe("Dados atuais do servidor: Uptime: 42 s.");
     expect(execute).toHaveBeenCalledWith("system.get_metrics", {}, metadata);
     expect(generate).not.toHaveBeenCalled();
@@ -61,8 +63,6 @@ describe("query assistant", () => {
     await expect(assistant.execute({ query: { query: "Quanto e 127 x 43?" }, ...metadata }))
       .resolves.toMatchObject({
         kind: "tool_result",
-        tool: "math.evaluate",
-        data: calculation,
         message: "O resultado de 127 * 43 \u00e9 5.461.",
       });
     expect(execute).toHaveBeenCalledWith("math.evaluate", { expression: "127 * 43" }, metadata);
