@@ -6,13 +6,14 @@ import {
   type AssistantQueryRequest,
   type AssistantQueryResponse,
 } from "@projeto-home/contracts";
-import { z } from "zod";
 import type { OperationalLogger } from "../logging/operational-logger.js";
 import type { ToolRegistry } from "../tools/registry.js";
 import {
   createAssistantResponsePrompt,
   extractExplicitMathExpression,
   isExplicitMetricsQuery,
+  isRequestDurationQuery,
+  isServerOnlineQuery,
 } from "./assistant-context.js";
 import { createCalculationResponse, createMetricsResponse } from "./tool-response.js";
 import {
@@ -22,35 +23,6 @@ import {
   LocalAIUnavailableError,
   type LocalAIService,
 } from "./local-ai-service.js";
-
-const MetricsToolDecisionSchema = z
-  .object({
-    action: z.literal("tool"),
-    tool: z.literal("system.get_metrics"),
-    arguments: z.object({}).strict(),
-  })
-  .strict();
-const MathToolDecisionSchema = z
-  .object({
-    action: z.literal("tool"),
-    tool: z.literal("math.evaluate"),
-    arguments: MathEvaluationRequestSchema,
-  })
-  .strict();
-const TextDecisionSchema = z.object({ action: z.literal("text") }).strict();
-const AssistantDecisionSchema = z.union([
-  MetricsToolDecisionSchema,
-  MathToolDecisionSchema,
-  TextDecisionSchema,
-]);
-
-const decisionPrompt = [
-  "/no_think Voce e o classificador do assistente local Projeto Home.",
-  "Responda somente JSON valido, sem markdown e sem chaves extras.",
-  "Para perguntas sobre dados atuais do servidor, uptime, memoria, swap, armazenamento, espaco, temperatura da CPU ou bateria, responda {\"action\":\"tool\",\"tool\":\"system.get_metrics\",\"arguments\":{}}.",
-  "Para calculos aritmeticos simples, extraia somente a expressao com numeros, parenteses, +, -, *, / ou % e responda {\"action\":\"tool\",\"tool\":\"math.evaluate\",\"arguments\":{\"expression\":\"2 + 2\"}}.",
-  "Para qualquer outra pergunta, responda {\"action\":\"text\"}.",
-].join(" ");
 
 export interface QueryAssistant {
   execute(input: {
@@ -69,6 +41,16 @@ export function createQueryAssistant(dependencies: {
     async execute(input) {
       const startedAt = process.hrtime.bigint();
       try {
+        if (isServerOnlineQuery(input.query.query)) {
+          return executeStaticTextQuery(
+            dependencies,
+            input,
+            startedAt,
+            "A API do Projeto Home esta online e processou esta consulta.",
+            "server_online",
+          );
+        }
+
         if (isExplicitMetricsQuery(input.query.query)) {
           return executeMetricsQuery(dependencies, input, startedAt);
         }
@@ -78,29 +60,17 @@ export function createQueryAssistant(dependencies: {
           return executeMathQuery(dependencies, input, startedAt, explicitExpression);
         }
 
-        const decisionResponse = await dependencies.localAIService.generate({
-          messages: [
-            { role: "system", content: decisionPrompt },
-            { role: "user", content: input.query.query },
-          ],
-          maxTokens: 96,
-        });
-        const decision = parseDecision(decisionResponse.content);
-        if (decision.action === "text") {
-          const message = await generateGroundedText(dependencies.localAIService, input.query.query);
-          const response = AssistantQueryResponseSchema.parse({
-            kind: "text",
-            message,
-            requestId: input.requestId,
-            correlationId: input.correlationId,
-          });
-          logQuery(dependencies.logger, input, "success", startedAt, { result: "text" });
-          return response;
+        if (isRequestDurationQuery(input.query.query)) {
+          return executeStaticTextQuery(
+            dependencies,
+            input,
+            startedAt,
+            "O sistema ainda nao calcula uma media de duracao das requisicoes. Os tempos individuais aparecem nos logs operacionais.",
+            "request_duration_unavailable",
+          );
         }
-        if (decision.tool === "system.get_metrics") {
-          return executeMetricsQuery(dependencies, input, startedAt);
-        }
-        return executeMathQuery(dependencies, input, startedAt, decision.arguments.expression);
+
+        return executeGeneralTextQuery(dependencies, input, startedAt);
       } catch (error) {
         logQuery(dependencies.logger, input, "failure", startedAt, {
           errorCode: getFailureCode(error),
@@ -109,6 +79,32 @@ export function createQueryAssistant(dependencies: {
       }
     },
   };
+}
+
+async function executeGeneralTextQuery(
+  dependencies: Parameters<typeof createQueryAssistant>[0],
+  input: Parameters<QueryAssistant["execute"]>[0],
+  startedAt: bigint,
+) {
+  const message = await generateGroundedText(dependencies.localAIService, input.query.query);
+  return executeStaticTextQuery(dependencies, input, startedAt, message, "text");
+}
+
+function executeStaticTextQuery(
+  dependencies: Parameters<typeof createQueryAssistant>[0],
+  input: Parameters<QueryAssistant["execute"]>[0],
+  startedAt: bigint,
+  message: string,
+  result: string,
+) {
+  const response = AssistantQueryResponseSchema.parse({
+    kind: "text",
+    message,
+    requestId: input.requestId,
+    correlationId: input.correlationId,
+  });
+  logQuery(dependencies.logger, input, "success", startedAt, { result });
+  return response;
 }
 
 async function executeMetricsQuery(
@@ -159,7 +155,6 @@ async function executeMathQuery(
 }
 
 function getFailureCode(error: unknown): string {
-  if (error instanceof InvalidAssistantDecisionError) return "invalid_assistant_decision";
   if (error instanceof InvalidAssistantTextError) return "invalid_assistant_text";
   if (error instanceof InvalidLocalAIRequestError) return "invalid_local_ai_request";
   if (error instanceof InvalidLocalAIResponseError) return "invalid_local_ai_response";
@@ -168,26 +163,10 @@ function getFailureCode(error: unknown): string {
   return "assistant_query_failed";
 }
 
-export class InvalidAssistantDecisionError extends Error {
-  constructor() {
-    super("invalid_assistant_decision");
-  }
-}
-
 export class InvalidAssistantTextError extends Error {
   constructor() {
     super("invalid_assistant_text");
   }
-}
-
-function parseDecision(content: string) {
-  try {
-    const parsed = AssistantDecisionSchema.safeParse(JSON.parse(content));
-    if (parsed.success) return parsed.data;
-  } catch {
-    // The model output is untrusted and intentionally has no fallback parser.
-  }
-  throw new InvalidAssistantDecisionError();
 }
 
 async function generateGroundedText(

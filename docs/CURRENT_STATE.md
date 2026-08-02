@@ -114,9 +114,9 @@ Integrar a IA local por meio de ferramentas autorizadas, mantendo o backend como
 - Perguntas, prompts, argumentos e respostas da IA não seguem para os logs; são registrados apenas metadados correlacionados de consulta e ferramenta.
 - Validação local da consulta ponta a ponta aprovada: typecheck dos três workspaces, 68 testes e build de produção. A validação real com `llama.cpp` e S20 FE permanece pendente.
 - Assistente ampliado com resposta natural fundamentada em contexto factual curto: identidade do Projeto Home, capacidades atuais, limites e ferramentas disponíveis.
-- Quando a consulta usa `system.get_metrics`, somente o resultado sanitizado dessa ferramenta é adicionado ao contexto de resposta; consultas textuais não recebem dados atuais, logs, banco ou arquivos.
-- Perguntas explícitas de memória, temperatura, CPU, bateria, swap, armazenamento, espaço, uptime ou estado do servidor possuem queda segura para a ferramenta de métricas mesmo se o classificador local falhar.
-- Prompt de decisão e textos do painel normalizados em português e UTF-8.
+- Consultas textuais não recebem dados atuais, logs, banco ou arquivos.
+- Perguntas explícitas de memória, temperatura, CPU, bateria, swap, armazenamento, espaço ou uptime possuem caminho seguro para `system.get_metrics` sem depender do modelo.
+- Prompt e textos do painel normalizados em português e UTF-8.
 - Validação local da manutenção do assistente aprovada: typecheck dos três workspaces, 70 testes e build de produção. A validação real com `llama.cpp` e S20 FE permanece pendente.
 - Consultas explícitas de métricas agora chamam `system.get_metrics` antes da classificação do modelo, eliminando a dependência de uma primeira resposta válida para dados atuais do servidor.
 - Ferramenta local `math.evaluate` implementada com expressão limitada a 128 caracteres, parser aritmético próprio, permissão declarada, timeout de 100 ms e sem acesso a `eval`, shell, rede, arquivos ou banco.
@@ -125,6 +125,9 @@ Integrar a IA local por meio de ferramentas autorizadas, mantendo o backend como
 - Respostas de `system.get_metrics` e `math.evaluate` passaram a ser formatadas deterministicamente pelo backend, impedindo que o modelo converta bytes, temperaturas ou resultados matemáticos de modo incorreto.
 - Dados estruturados das ferramentas permanecem disponíveis na interface em detalhes técnicos fechados por padrão.
 - Validação local da apresentação determinística aprovada: typecheck dos três workspaces e 78 testes. A validação real com `llama.cpp` e S20 FE permanece pendente.
+- A classificação JSON intermediária foi removida das perguntas gerais, que agora seguem diretamente para uma resposta natural do modelo sob contexto factual curto e sem novas permissões.
+- Confirmação de disponibilidade da API e a ausência atual de uma média de duração de requisições têm respostas locais explícitas, sem depender do runtime de IA.
+- Validação local da ampliação da conversa aprovada: typecheck dos três workspaces e 79 testes. A validação real com `llama.cpp` e S20 FE permanece pendente.
 
 ## Em andamento
 

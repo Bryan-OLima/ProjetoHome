@@ -10,9 +10,10 @@ const projectFacts = [
 export function createAssistantResponsePrompt(query: string): string {
   return [
     "/no_think Voce responde em portugues como o assistente do Projeto Home.",
-    "Use somente os fatos e dados fornecidos abaixo. Nao invente capacidades, integracoes, numeros ou acoes executadas.",
-    "Se a pergunta pedir algo indisponivel, explique isso de forma direta e ofereca somente capacidades existentes.",
-    "Quando houver dados atuais autorizados, explique-os de forma clara. Nao afirme dados atuais quando eles nao estiverem presentes.",
+    "Para perguntas cotidianas que nao exigem dados atuais do sistema, converse de modo natural, util e direto.",
+    "Para perguntas sobre o Projeto Home, use os fatos fornecidos. Nao invente capacidades, integracoes, numeros ou acoes executadas.",
+    "Nao afirme dados atuais do servidor, acesso a fontes externas ou acoes no sistema sem resultado autorizado fornecido pelo backend.",
+    "Se a pergunta pedir um recurso indisponivel do Projeto Home, explique isso de forma direta e ofereca somente capacidades existentes.",
     "Responda em no maximo tres frases e 480 caracteres, sem markdown.",
     `\nFatos confiaveis:\n${projectFacts}`,
     `\nPergunta do usuario:\n${query}`,
@@ -39,6 +40,21 @@ export function isExplicitMetricsQuery(query: string): boolean {
   ].some((term) => normalized.includes(term));
 }
 
+export function isServerOnlineQuery(query: string): boolean {
+  const normalized = normalizeQuery(query);
+  return normalized.includes("servidor esta online")
+    || normalized.includes("server esta online")
+    || (normalized.includes("servidor") && normalized.includes("online"));
+}
+
+export function isRequestDurationQuery(query: string): boolean {
+  const normalized = normalizeQuery(query);
+  return normalized.includes("tempo demora uma requisicao")
+    || normalized.includes("tempo de requisicao")
+    || normalized.includes("duracao da requisicao")
+    || normalized.includes("latencia da requisicao");
+}
+
 export function extractExplicitMathExpression(query: string): string | undefined {
   const normalized = query
     .replace(/(\d)\s*[x\u00d7]\s*(\d)/g, "$1 * $2")
@@ -46,4 +62,11 @@ export function extractExplicitMathExpression(query: string): string | undefined
     .replace(/,/g, ".");
   const candidate = normalized.match(/[0-9][0-9.\s()+\-*/%]*/)?.[0]?.trim();
   return candidate && /[+\-*/%]/.test(candidate) ? candidate : undefined;
+}
+
+function normalizeQuery(query: string): string {
+  return query
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .toLowerCase();
 }
