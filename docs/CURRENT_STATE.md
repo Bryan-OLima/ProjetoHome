@@ -1,8 +1,8 @@
 # Estado Atual do Projeto
 
 **Atualizado em:** 2026-08-01
-**Fase atual:** Etapa 5 — IA local e registro de ferramentas
-**Estado geral:** Etapas 1, 2, 3 e 4 concluídas e validadas no S20 FE; assistente da Etapa 5 ampliado e validado localmente
+**Fase atual:** Etapa 5 — IA local e registro de ferramentas concluída
+**Estado geral:** Etapas 1, 2, 3, 4 e 5 concluídas e validadas no S20 FE
 
 ## Objetivo da fase atual
 
@@ -131,14 +131,16 @@ Integrar a IA local por meio de ferramentas autorizadas, mantendo o backend como
 - A resposta pública do assistente foi reduzida a mensagem e identificadores de rastreio, sem nome da ferramenta ou resultado estruturado; o backend continua validando e usando esses resultados internamente.
 - Página `/documentation` implementada com referência das rotas públicas de health, monitoramento, storage, observabilidade e assistente, além das páginas atuais da interface; o Express entrega a rota estática em produção.
 - Validação local da página de documentação aprovada: typecheck dos três workspaces e 81 testes. A validação no S20 FE permanece pendente.
+- Validação final da Etapa 5 aprovada no S20 FE em 2026-08-01: runtime `llama.cpp` em loopback, métricas e cálculos determinísticos, confirmação de disponibilidade da API, explicação da indisponibilidade da média de duração de requisições, conversa geral e ausência de dados internos na resposta do assistente foram conferidos no navegador. Logs correlacionados de consulta e ferramenta foram confirmados em `/logs`.
+- Etapa 5 concluída: o assistente local responde consultas gerais sem permissões adicionais, usa somente caminhos autorizados para dados do sistema e mantém resultados internos de ferramentas fora da resposta pública.
 
 ## Em andamento
 
-- Validar no S20 FE o fluxo completo da consulta em linguagem natural com o `llama-server` em loopback.
+Nenhum trabalho em andamento.
 
 ## Próximo passo recomendado
 
-Validar a primeira consulta do assistente no S20 FE e registrar o procedimento operacional de início do modelo sob demanda.
+Planejar o primeiro incremento vertical da Etapa 6 — Gmail somente leitura, sem iniciar a implementação antes da definição explícita do escopo.
 
 ## Melhoria futura registrada
 

@@ -2,7 +2,7 @@
 
 Plataforma pessoal e local para transformar um Samsung Galaxy S20 FE em um servidor doméstico. O projeto reunirá dashboard, monitoramento, armazenamento, automações, integrações e um assistente com IA local, preservando privacidade e controle do usuário.
 
-> **Estado atual:** Etapas 1, 2, 3 e 4 concluídas e validadas no S20 FE. O storage interno possui capacidade e inventário seguro; suporte a microSD fica para quando houver um cartão instalado. Consulte o [estado operacional](./docs/CURRENT_STATE.md) antes de implementar.
+> **Estado atual:** Etapas 1, 2, 3, 4 e 5 concluídas e validadas no S20 FE. O assistente local responde consultas gerais e usa caminhos autorizados para dados do sistema; suporte a microSD fica para quando houver um cartão instalado. Consulte o [estado operacional](./docs/CURRENT_STATE.md) antes de implementar.
 
 ## Objetivos
 
@@ -208,6 +208,7 @@ Abra a dashboard pela rede local e envie perguntas sobre estado, memória, swap,
 - Pico de RSS: `1.769.068 kB`.
 - Temperatura máxima no ensaio completo: `39,0 °C`.
 - Resposta coerente em português e encerramento normal.
+- Fluxo completo da Etapa 5 validado: métricas, cálculos, conversa geral, disponibilidade da API, logs correlacionados e resposta pública sem dados internos de ferramentas.
 
 ## Estrutura atual
 
@@ -348,4 +349,4 @@ O modelo GGUF não é versionado no repositório. Consulte as instruções, hash
 
 ## Próximo passo
 
-Validar no S20 FE as consultas de métricas e cálculos locais do assistente com o runtime `llama.cpp` em loopback.
+Planejar o primeiro incremento vertical da Etapa 6 — Gmail somente leitura.
