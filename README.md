@@ -51,6 +51,7 @@ As versões validadas na prova do banco foram `drizzle-orm@1.0.0-rc.4` e `drizzl
 - `GET /api/observability/operational-logs` consulta os arquivos JSONL rotativos mais recentes com filtros tipados e leitura limitada, sem carregar os arquivos inteiros em memória.
 - A página `/logs` reúne as duas fontes, permite filtros por período, nível, tipo, serviço, ação e correlação, e apresenta detalhes técnicos já sanitizados.
 - Os filtros técnicos da página possuem ajuda contextual com as opções disponíveis nesta fase. O campo de serviço permanece livre até existir um catálogo de valores observados.
+- A página `/documentation` reúne as rotas públicas atuais, seus parâmetros, exemplos seguros de uso e respostas esperadas, sem expor ferramentas internas ou configuração sensível.
 - `GET /api/monitoring/metrics` coleta sob demanda uptime do processo, memória, swap, armazenamento e temperaturas expostas pelo aparelho, sem falhar a resposta quando alguma fonte está indisponível.
 - O dashboard raiz apresenta essas métricas com estados de carregamento, indisponibilidade e erro. Dados detalhados da bateria continuarão indisponíveis até uma futura decisão de usar Termux:API.
 - A rota de métricas e os cartões do dashboard foram validados no S20 FE por SSH e no navegador pela rede local.
@@ -152,7 +153,7 @@ O painel **Assistente local** na dashboard usa essa rota. Perguntas gerais segue
 
 Resultados de ferramentas são formatados diretamente pelo backend antes de chegar à interface: bytes são convertidos para GB, temperaturas para °C e fontes indisponíveis são declaradas como indisponíveis. Assim, o modelo não faz conversões nem cálculos sobre valores operacionais. Ele permanece responsável somente pelas respostas gerais em linguagem natural, usando contexto factual curto. Ele não recebe documentos, logs, arquivos ou banco completos, nem pode inventar capacidades fora desse contexto. Perguntas, prompts, argumentos e respostas do modelo não são registrados nos logs.
 
-Perguntas como “como está a temperatura da CPU?” ou “quanta memória disponível há?” acionam `system.get_metrics` sem depender do modelo. A resposta mostra os valores formatados e confiáveis; se uma fonte do Android não estiver disponível, ela é indicada como indisponível em vez de ser estimada. Os dados estruturados continuam disponíveis em **Detalhes técnicos**, fechados por padrão, para conferência. Cálculos também mostram o resultado estruturado, permitindo conferir a expressão que foi avaliada. Como a duração média de requisições ainda não é calculada, perguntas sobre ela recebem essa limitação de modo explícito e apontam para os logs operacionais.
+Perguntas como “como está a temperatura da CPU?” ou “quanta memória disponível há?” acionam `system.get_metrics` sem depender do modelo. A resposta mostra os valores formatados e confiáveis; se uma fonte do Android não estiver disponível, ela é indicada como indisponível em vez de ser estimada. O resultado estruturado da ferramenta permanece interno ao backend e não é enviado pela rota do assistente; para inspeção detalhada de métricas, use o dashboard ou `GET /api/monitoring/metrics`. Como a duração média de requisições ainda não é calculada, perguntas sobre ela recebem essa limitação de modo explícito e apontam para os logs operacionais.
 
 Para a primeira validação, o `llama-server` deve estar em execução separadamente e restrito ao loopback, com o perfil aprovado:
 
@@ -178,7 +179,7 @@ cd ~/ProjetoHome
 bash scripts/termux/supervisor.sh
 ```
 
-Abra a dashboard pela rede local e envie perguntas sobre estado, memória, swap, armazenamento ou temperatura do servidor, além de um cálculo como `Quanto é 127 x 43?`. Confirme a mensagem, os dados estruturados e os eventos correlacionados `assistant.query` e `assistant.tool` em `/logs`. Para encerrar a validação, use `Ctrl+C` nas duas sessões; o carregamento sob demanda do modelo como parte da operação contínua ainda será definido após essa prova.
+Abra a dashboard pela rede local e envie perguntas sobre estado, memória, swap, armazenamento ou temperatura do servidor, além de um cálculo como `Quanto é 127 x 43?`. Confirme a mensagem formatada e os eventos correlacionados `assistant.query` e `assistant.tool` em `/logs`; a inspeção detalhada das métricas fica no dashboard ou em `GET /api/monitoring/metrics`. Para encerrar a validação, use `Ctrl+C` nas duas sessões; o carregamento sob demanda do modelo como parte da operação contínua ainda será definido após essa prova.
 
 ## Resultados das provas no S20 FE
 

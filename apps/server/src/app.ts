@@ -113,6 +113,9 @@ export function createApp(options: AppOptions) {
     app.get("/logs", (_request, response) => {
       response.sendFile(join(options.webDistPath!, "index.html"));
     });
+    app.get("/documentation", (_request, response) => {
+      response.sendFile(join(options.webDistPath!, "index.html"));
+    });
   }
 
   const notFound: RequestHandler = (_request, response) => {

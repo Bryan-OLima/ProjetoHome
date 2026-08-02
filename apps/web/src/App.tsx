@@ -4,10 +4,14 @@ import { RecentActivityPanel } from "./RecentActivityPanel.js";
 import { SystemMetricsPanel } from "./SystemMetricsPanel.js";
 import { StoragePanel } from "./StoragePanel.js";
 import { AssistantPanel } from "./AssistantPanel.js";
+import { DocumentationPage } from "./DocumentationPage.js";
 
 export function App() {
   if (window.location.pathname === "/logs") {
     return <LogsPage />;
+  }
+  if (window.location.pathname === "/documentation") {
+    return <DocumentationPage />;
   }
 
   return (
@@ -18,9 +22,10 @@ export function App() {
           <h1>Projeto Home</h1>
           <p>O núcleo local começa pela saúde do sistema.</p>
         </div>
-        <a className="navigation-link" href="/logs">
-          Ver logs
-        </a>
+        <nav className="page-navigation" aria-label="Navegacao principal">
+          <a className="navigation-link" href="/logs">Ver logs</a>
+          <a className="navigation-link" href="/documentation">Documentacao</a>
+        </nav>
       </header>
       <ServerStatusCard />
       <SystemMetricsPanel />

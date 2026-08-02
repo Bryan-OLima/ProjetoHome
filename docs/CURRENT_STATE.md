@@ -123,11 +123,14 @@ Integrar a IA local por meio de ferramentas autorizadas, mantendo o backend como
 - Consultas gerais permanecem flexíveis em linguagem natural, porém recebem apenas contexto factual curto do Projeto Home; métricas e cálculos recebem somente seus resultados sanitizados e estruturados.
 - Validação local da ampliação de flexibilidade aprovada: typecheck dos três workspaces e 75 testes. A validação real com `llama.cpp` e S20 FE permanece pendente.
 - Respostas de `system.get_metrics` e `math.evaluate` passaram a ser formatadas deterministicamente pelo backend, impedindo que o modelo converta bytes, temperaturas ou resultados matemáticos de modo incorreto.
-- Dados estruturados das ferramentas permanecem disponíveis na interface em detalhes técnicos fechados por padrão.
+- Dados estruturados das ferramentas não são enviados pela resposta pública do assistente; inspeção detalhada de métricas permanece no dashboard e em `GET /api/monitoring/metrics`.
 - Validação local da apresentação determinística aprovada: typecheck dos três workspaces e 78 testes. A validação real com `llama.cpp` e S20 FE permanece pendente.
 - A classificação JSON intermediária foi removida das perguntas gerais, que agora seguem diretamente para uma resposta natural do modelo sob contexto factual curto e sem novas permissões.
 - Confirmação de disponibilidade da API e a ausência atual de uma média de duração de requisições têm respostas locais explícitas, sem depender do runtime de IA.
 - Validação local da ampliação da conversa aprovada: typecheck dos três workspaces e 79 testes. A validação real com `llama.cpp` e S20 FE permanece pendente.
+- A resposta pública do assistente foi reduzida a mensagem e identificadores de rastreio, sem nome da ferramenta ou resultado estruturado; o backend continua validando e usando esses resultados internamente.
+- Página `/documentation` implementada com referência das rotas públicas de health, monitoramento, storage, observabilidade e assistente, além das páginas atuais da interface; o Express entrega a rota estática em produção.
+- Validação local da página de documentação aprovada: typecheck dos três workspaces e 81 testes. A validação no S20 FE permanece pendente.
 
 ## Em andamento
 

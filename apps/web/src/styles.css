@@ -72,6 +72,36 @@ header p {
   padding: 0.65rem 0.85rem;
 }
 
+.page-navigation { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.5rem; }
+.page-navigation .navigation-link { margin-top: 0.5rem; }
+
+.documentation-intro,
+.documentation-routes,
+.documentation-pages {
+  margin-top: 2rem;
+  padding: 1.25rem;
+  border: 1px solid #24343d;
+  border-radius: 1rem;
+  background: rgb(18 27 34 / 88%);
+}
+
+.documentation-intro h2,
+.documentation-routes h2,
+.documentation-pages h2 { margin: 0; font-size: 1.1rem; }
+.documentation-intro p { margin: 0.7rem 0 0; color: #b7c9d0; }
+.documentation-route-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 0.85rem; margin-top: 1rem; }
+.documentation-route { padding: 1rem; border: 1px solid #31505b; border-radius: 0.75rem; background: #101b21; }
+.documentation-route__heading { display: flex; align-items: center; gap: 0.6rem; overflow-wrap: anywhere; }
+.documentation-route__heading code { color: #eaf2f5; font-size: 0.9rem; }
+.http-method { border-radius: 999px; padding: 0.15rem 0.45rem; font-size: 0.72rem; font-weight: 700; }
+.http-method--get { color: #9ee5d6; background: #19373d; }
+.http-method--post { color: #ffe1a8; background: #4d3b1b; }
+.documentation-route > p { margin: 0.75rem 0; color: #b7c9d0; font-size: 0.9rem; line-height: 1.45; }
+.documentation-route__detail { display: grid; gap: 0.25rem; margin-top: 0.6rem; color: #9eb0b8; font-size: 0.82rem; }
+.documentation-route__detail strong { color: #c8f7ef; }
+.documentation-route__detail code { overflow-wrap: anywhere; color: #d8e9ed; }
+.documentation-pages ul { display: grid; gap: 0.55rem; margin: 1rem 0 0; padding-left: 1.2rem; color: #b7c9d0; }
+
 .status-card {
   display: flex;
   align-items: center;
