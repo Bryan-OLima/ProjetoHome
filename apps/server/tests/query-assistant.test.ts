@@ -26,41 +26,49 @@ describe("query assistant", () => {
     const execute = vi.fn(async () => metrics);
     const log = vi.fn();
     const generate = vi.fn()
-      .mockResolvedValueOnce({ content: "{\"action\":\"tool\",\"tool\":\"system.get_metrics\",\"arguments\":{}}" })
-      .mockResolvedValueOnce({ content: "A mem\u00f3ria e a temperatura atuais est\u00e3o dispon\u00edveis nos dados consultados." });
+      .mockResolvedValueOnce({ content: "{\"action\":\"tool\",\"tool\":\"system.get_metrics\",\"arguments\":{}}" });
     const assistant = createQueryAssistant({ localAIService: { generate }, toolRegistry: { execute }, logger: { log } });
 
     const response = await assistant.execute({ query: { query: "Me mostre as metricas atuais." }, ...metadata });
 
     expect(response).toMatchObject({ kind: "tool_result", tool: "system.get_metrics", data: metrics });
+    expect(response.message).toContain("Armazenamento dispon\u00edvel: 0.0 GB de 0.0 GB");
     expect(execute).toHaveBeenCalledWith("system.get_metrics", {}, metadata);
+    expect(generate).toHaveBeenCalledOnce();
     expect(log).toHaveBeenCalledWith(expect.objectContaining({ context: { tool: "system.get_metrics" } }));
   });
 
   it("uses a safe metrics fallback for explicit current metric queries", async () => {
     const execute = vi.fn(async () => metrics);
-    const generate = vi.fn()
-      .mockResolvedValueOnce({ content: "Os dados atuais de mem\u00f3ria e temperatura foram consultados." });
+    const generate = vi.fn();
     const assistant = createQueryAssistant({ localAIService: { generate }, toolRegistry: { execute }, logger: { log: vi.fn() } });
 
     await expect(assistant.execute({
       query: { query: "Como est\u00e1 a mem\u00f3ria e a temperatura do servidor?" },
       ...metadata,
-    })).resolves.toMatchObject({ kind: "tool_result" });
+    })).resolves.toMatchObject({
+      kind: "tool_result",
+      message: "Dados atuais do servidor: Mem\u00f3ria dispon\u00edvel: 0.0 GB de 0.0 GB.",
+    });
     expect(execute).toHaveBeenCalledOnce();
-    expect(generate).toHaveBeenCalledOnce();
+    expect(generate).not.toHaveBeenCalled();
   });
 
   it("evaluates explicit arithmetic locally before generating the response", async () => {
     const calculation = MathEvaluationResultSchema.parse({ expression: "127 * 43", value: 5461 });
     const execute = vi.fn(async () => calculation);
-    const generate = vi.fn().mockResolvedValue({ content: "127 vezes 43 e igual a 5461." });
+    const generate = vi.fn();
     const assistant = createQueryAssistant({ localAIService: { generate }, toolRegistry: { execute }, logger: { log: vi.fn() } });
 
     await expect(assistant.execute({ query: { query: "Quanto e 127 x 43?" }, ...metadata }))
-      .resolves.toMatchObject({ kind: "tool_result", tool: "math.evaluate", data: calculation });
+      .resolves.toMatchObject({
+        kind: "tool_result",
+        tool: "math.evaluate",
+        data: calculation,
+        message: "O resultado de 127 * 43 \u00e9 5.461.",
+      });
     expect(execute).toHaveBeenCalledWith("math.evaluate", { expression: "127 * 43" }, metadata);
-    expect(generate).toHaveBeenCalledOnce();
+    expect(generate).not.toHaveBeenCalled();
   });
 
   it("generates grounded text without executing a tool for general questions", async () => {

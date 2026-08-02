@@ -122,6 +122,9 @@ Integrar a IA local por meio de ferramentas autorizadas, mantendo o backend como
 - Ferramenta local `math.evaluate` implementada com expressão limitada a 128 caracteres, parser aritmético próprio, permissão declarada, timeout de 100 ms e sem acesso a `eval`, shell, rede, arquivos ou banco.
 - Consultas gerais permanecem flexíveis em linguagem natural, porém recebem apenas contexto factual curto do Projeto Home; métricas e cálculos recebem somente seus resultados sanitizados e estruturados.
 - Validação local da ampliação de flexibilidade aprovada: typecheck dos três workspaces e 75 testes. A validação real com `llama.cpp` e S20 FE permanece pendente.
+- Respostas de `system.get_metrics` e `math.evaluate` passaram a ser formatadas deterministicamente pelo backend, impedindo que o modelo converta bytes, temperaturas ou resultados matemáticos de modo incorreto.
+- Dados estruturados das ferramentas permanecem disponíveis na interface em detalhes técnicos fechados por padrão.
+- Validação local da apresentação determinística aprovada: typecheck dos três workspaces e 78 testes. A validação real com `llama.cpp` e S20 FE permanece pendente.
 
 ## Em andamento
 

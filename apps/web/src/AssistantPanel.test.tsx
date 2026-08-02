@@ -28,12 +28,14 @@ describe("AssistantPanel", () => {
       }),
     }));
 
-    render(<AssistantPanel />);
+    const { container } = render(<AssistantPanel />);
     fireEvent.change(screen.getByLabelText("Consulta"), { target: { value: "Como está o servidor?" } });
     fireEvent.click(screen.getByRole("button", { name: "Consultar" }));
 
     expect(await screen.findByText("Métricas atuais do servidor consultadas.")).toBeInTheDocument();
-    expect(screen.getByText("Dados consultados (system.get_metrics)")).toBeInTheDocument();
+    const details = container.querySelector("details");
+    expect(details).toBeInTheDocument();
+    expect(details).not.toHaveAttribute("open");
   });
 
   it("shows a safe unavailable state", async () => {

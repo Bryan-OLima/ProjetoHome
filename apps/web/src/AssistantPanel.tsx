@@ -50,7 +50,7 @@ export function AssistantPanel() {
           <strong>{assistant.response.message}</strong>
           {assistant.response.kind === "tool_result" && (
             <details>
-              <summary>Dados consultados ({assistant.response.tool})</summary>
+              <summary>{"Detalhes técnicos ("}{assistant.response.tool}{")"}</summary>
               <pre>{JSON.stringify(assistant.response.data, null, 2)}</pre>
             </details>
           )}

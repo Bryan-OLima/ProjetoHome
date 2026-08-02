@@ -5,8 +5,6 @@ import {
   SystemMetricsResponseSchema,
   type AssistantQueryRequest,
   type AssistantQueryResponse,
-  type MathEvaluationResult,
-  type SystemMetricsResponse,
 } from "@projeto-home/contracts";
 import { z } from "zod";
 import type { OperationalLogger } from "../logging/operational-logger.js";
@@ -16,6 +14,7 @@ import {
   extractExplicitMathExpression,
   isExplicitMetricsQuery,
 } from "./assistant-context.js";
+import { createCalculationResponse, createMetricsResponse } from "./tool-response.js";
 import {
   InvalidLocalAIRequestError,
   InvalidLocalAIResponseError,
@@ -122,7 +121,7 @@ async function executeMetricsQuery(
     {},
     { requestId: input.requestId, correlationId: input.correlationId },
   ));
-  const message = await generateGroundedText(dependencies.localAIService, input.query.query, { metrics: result });
+  const message = createMetricsResponse(input.query.query, result);
   const response = AssistantQueryResponseSchema.parse({
     kind: "tool_result",
     message,
@@ -146,7 +145,7 @@ async function executeMathQuery(
     MathEvaluationRequestSchema.parse({ expression }),
     { requestId: input.requestId, correlationId: input.correlationId },
   ));
-  const message = await generateGroundedText(dependencies.localAIService, input.query.query, { calculation: result });
+  const message = createCalculationResponse(result);
   const response = AssistantQueryResponseSchema.parse({
     kind: "tool_result",
     message,
@@ -194,16 +193,11 @@ function parseDecision(content: string) {
 async function generateGroundedText(
   localAIService: LocalAIService,
   query: string,
-  data?: { metrics?: SystemMetricsResponse; calculation?: MathEvaluationResult },
 ): Promise<string> {
   const response = await localAIService.generate({
     messages: [{
       role: "system",
-      content: createAssistantResponsePrompt({
-        query,
-        ...(data?.metrics === undefined ? {} : { metrics: data.metrics }),
-        ...(data?.calculation === undefined ? {} : { calculation: data.calculation }),
-      }),
+      content: createAssistantResponsePrompt(query),
     }],
     maxTokens: 128,
   });
